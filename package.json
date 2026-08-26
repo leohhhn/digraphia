@@ -1,0 +1,7 @@
+{
+  "name": "digraphia",
+  "private": true,
+  "type": "module",
+  "workspaces": ["packages/*", "apps/*"],
+  "packageManager": "pnpm@10.33.2"
+}

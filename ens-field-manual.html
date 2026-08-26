@@ -1,0 +1,809 @@
+<title>ENS Field Manual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --paper:#E9EDF1;
+  --sheet:#FBFCFD;
+  --sheet-2:#F1F4F7;
+  --ink:#131E2B;
+  --muted:#58697C;
+  --rule:#C7D1DB;
+  --rule-soft:#DCE3EA;
+  --accent:#1D3FBF;
+  --ok:#0B6E5F;
+  --warn:#8F5A05;
+  --hot:#A8271A;
+  --free:#7C8A9A;
+  --sans:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --cond:"IBM Plex Sans Condensed","IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0D141C; --sheet:#141E29; --sheet-2:#111A24;
+    --ink:#DDE6EF; --muted:#8497A9; --rule:#26343F; --rule-soft:#1D2934;
+    --accent:#89A6FF; --ok:#3FB89E; --warn:#D5A03F; --hot:#E47464; --free:#7E8E9E;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0D141C; --sheet:#141E29; --sheet-2:#111A24;
+  --ink:#DDE6EF; --muted:#8497A9; --rule:#26343F; --rule-soft:#1D2934;
+  --accent:#89A6FF; --ok:#3FB89E; --warn:#D5A03F; --hot:#E47464; --free:#7E8E9E;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:16px; line-height:1.65;
+  margin:0; -webkit-font-smoothing:antialiased;
+}
+.shell{max-width:1180px;margin:0 auto;padding:0 24px 96px}
+
+/* ---------- masthead ---------- */
+.mast{padding:64px 0 34px;border-bottom:1px solid var(--rule)}
+.mast .kicker{
+  font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 18px
+}
+.mast h1{
+  font-family:var(--cond);font-weight:700;font-size:clamp(38px,6.4vw,66px);
+  line-height:1.02;letter-spacing:-.015em;margin:0;text-wrap:balance;max-width:16ch
+}
+.mast .standfirst{
+  margin:20px 0 0;max-width:60ch;font-size:18px;color:var(--muted)
+}
+.mast .meta{
+  margin-top:26px;font-family:var(--mono);font-size:11px;color:var(--muted);
+  display:flex;flex-wrap:wrap;gap:8px 22px
+}
+
+/* ---------- layout ---------- */
+.cols{display:block}
+@media (min-width:1080px){
+  .cols{display:grid;grid-template-columns:200px minmax(0,1fr);gap:56px;align-items:start}
+  .rail{position:sticky;top:32px;padding-top:52px}
+}
+.rail{display:none}
+@media (min-width:1080px){.rail{display:block}}
+.rail p{
+  font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 14px
+}
+.rail a{
+  display:block;font-family:var(--cond);font-size:14px;line-height:1.35;
+  color:var(--muted);text-decoration:none;padding:5px 0;border-left:2px solid transparent;padding-left:12px
+}
+.rail a:hover{color:var(--ink);border-left-color:var(--accent)}
+.rail a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+main{min-width:0;padding-top:52px;display:flex;flex-direction:column;gap:60px}
+section{display:flex;flex-direction:column;gap:18px;scroll-margin-top:24px}
+.eyebrow{
+  font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--accent);margin:0;display:flex;align-items:center;gap:12px
+}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h2{
+  font-family:var(--cond);font-weight:700;font-size:clamp(26px,3.4vw,34px);
+  line-height:1.12;letter-spacing:-.01em;margin:0;text-wrap:balance;max-width:22ch
+}
+h3{
+  font-family:var(--cond);font-weight:600;font-size:19px;margin:14px 0 0;
+  letter-spacing:-.005em;text-wrap:balance
+}
+p,li{max-width:68ch;margin:0}
+ul,ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:9px}
+li::marker{color:var(--muted)}
+strong{font-weight:600}
+code{
+  font-family:var(--mono);font-size:.86em;background:var(--sheet-2);
+  border:1px solid var(--rule-soft);border-radius:2px;padding:1px 5px
+}
+a{color:var(--accent)}
+
+.lede{font-size:18px;max-width:64ch}
+.callout{
+  border-left:3px solid var(--accent);background:var(--sheet);
+  padding:16px 20px;max-width:70ch
+}
+.callout p{max-width:none}
+.callout .tag{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);display:block;margin-bottom:6px
+}
+
+/* ---------- figures ---------- */
+figure{margin:8px 0;display:flex;flex-direction:column;gap:12px}
+.sheet{
+  background:var(--sheet);border:1px solid var(--rule);border-radius:3px;
+  padding:22px 20px;overflow-x:auto
+}
+.sheet svg{display:block;width:100%;min-width:640px;height:auto}
+figcaption{font-size:13.5px;color:var(--muted);max-width:68ch}
+
+svg.d{color:var(--ink)}
+svg.d rect.b{fill:var(--sheet-2);stroke:currentColor;stroke-opacity:.34;stroke-width:1}
+svg.d rect.plain{fill:none;stroke:currentColor;stroke-opacity:.34;stroke-width:1}
+svg.d text{fill:currentColor;font-family:var(--sans);font-size:12px}
+svg.d .hd{font-family:var(--cond);font-weight:600;font-size:15px}
+svg.d .sm{font-size:11px;fill:var(--muted)}
+svg.d .xs{font-size:9.5px;fill:var(--muted);font-family:var(--mono)}
+svg.d .mono{font-family:var(--mono);font-size:11px}
+svg.d .mono-s{font-family:var(--mono);font-size:9.5px}
+svg.d .eb{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;fill:var(--muted)}
+svg.d line,svg.d path.edge,svg.d polyline{stroke:currentColor;stroke-opacity:.5;fill:none;stroke-width:1.2}
+svg.d .dash{stroke-dasharray:3 4;stroke-opacity:.4}
+svg.d .acc{color:var(--accent)}
+svg.d .acc text{fill:var(--accent)}
+svg.d .acc line,svg.d .acc path.edge,svg.d .acc polyline{stroke:var(--accent);stroke-opacity:.9}
+
+/* ---------- tables ---------- */
+.tw{overflow-x:auto;border:1px solid var(--rule);border-radius:3px;background:var(--sheet)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:560px}
+th{
+  font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted);text-align:left;padding:11px 16px;border-bottom:1px solid var(--rule);font-weight:400
+}
+td{padding:11px 16px;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.m,th.m{font-family:var(--mono);font-size:12px;white-space:nowrap}
+td.num{font-variant-numeric:tabular-nums;text-align:right}
+
+/* ---------- phase list (a real sequence, hence numbers) ---------- */
+.phases{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--rule)}
+.phase{
+  display:grid;grid-template-columns:52px minmax(0,1fr);gap:20px;
+  padding:18px 0;border-bottom:1px solid var(--rule-soft)
+}
+.phase .n{
+  font-family:var(--mono);font-size:11px;color:var(--accent);padding-top:3px;
+  font-variant-numeric:tabular-nums
+}
+.phase h4{font-family:var(--cond);font-weight:600;font-size:17px;margin:0 0 5px}
+.phase p{font-size:14.5px;color:var(--muted);max-width:62ch}
+.phase .dur{
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin-left:10px
+}
+
+.checklist{display:flex;flex-direction:column;gap:14px}
+.check{
+  display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:start;
+  padding-bottom:14px;border-bottom:1px solid var(--rule-soft)
+}
+.check .mk{font-family:var(--mono);font-size:12px;color:var(--accent);padding-top:2px}
+.check p{font-size:14.5px;max-width:62ch}
+
+footer{
+  margin-top:76px;padding-top:26px;border-top:1px solid var(--rule);
+  font-size:13px;color:var(--muted)
+}
+footer a{color:var(--muted)}
+footer ul{padding-left:0;list-style:none;gap:5px;margin-top:10px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+
+<div class="shell">
+
+<header class="mast">
+  <p class="kicker">Protocol reference · August 2026</p>
+  <h1>ENS Field Manual</h1>
+  <p class="standfirst">How the Ethereum Name Service is actually put together — the three contracts that matter, the one rule they all obey, and everything that happens to a <code>.eth</code> name between registration and expiry.</p>
+  <div class="meta">
+    <span>Mainnet · ENSv1 in production</span>
+    <span>ENSv2 rolling out through 2026</span>
+    <span>Namechain cancelled Feb 2026</span>
+  </div>
+</header>
+
+<div class="cols">
+  <nav class="rail" aria-label="Contents">
+    <p>Contents</p>
+    <a href="#rule">The one rule</a>
+    <a href="#layers">Three layers</a>
+    <a href="#tree">Hierarchy</a>
+    <a href="#hashes">Names are hashes</a>
+    <a href="#issue">Four ways to get a name</a>
+    <a href="#lifecycle">Lifecycle</a>
+    <a href="#register">Inside registration</a>
+    <a href="#storage">Where data lives</a>
+    <a href="#resolve">Forward resolution</a>
+    <a href="#reverse">Reverse resolution</a>
+    <a href="#v2">What ENSv2 changes</a>
+    <a href="#checklist">Integration checklist</a>
+    <a href="#addresses">Addresses</a>
+  </nav>
+
+  <main>
+
+  <!-- ================= THE RULE ================= -->
+  <section id="rule">
+    <p class="eyebrow">Start here</p>
+    <h2>ENS is not a domain registry. It is a hierarchy of delegated resolution authority.</h2>
+    <p class="lede">Every feature in the protocol falls out of one rule: <strong>whoever controls a node controls resolution for everything beneath it, absolutely and recursively.</strong></p>
+    <p>Subnames, Layer 2 names, gasless offchain names, imported DNS domains, custom registrars — none of these are special cases bolted on. They are all the same rule applied at a different depth. If you hold only one idea about ENS, hold this one; the rest of this page is elaboration.</p>
+    <p>The corollary catches people out: <code>.eth</code> is not the protocol. It is simply the most valuable instance of the general mechanism, and it is increasingly not the only one your app will encounter.</p>
+  </section>
+
+  <!-- ================= LAYERS ================= -->
+  <section id="layers">
+    <p class="eyebrow">Architecture</p>
+    <h2>Three jobs, three contracts, deliberately kept apart</h2>
+    <p>DNS conflates ownership, sale, and lookup into one system. ENS splits them, and the split is what makes the protocol extensible: each layer can be replaced without touching the others.</p>
+
+    <figure>
+      <div class="sheet">
+        <svg class="d" viewBox="0 0 840 240" role="img" aria-label="Three ENS layers in sequence: the registrar decides who may acquire a name and calls setSubnodeOwner on the registry; the registry records the owner and which resolver speaks for each node; the resolver stores what the name actually says.">
+          <defs>
+            <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+
+          <text class="eb" x="30" y="30">ACQUIRE</text>
+          <text class="eb" x="325" y="30">CONTROL</text>
+          <text class="eb" x="620" y="30">MEANING</text>
+
+          <rect class="b" x="30" y="46" width="190" height="136" rx="2"/>
+          <text class="hd" x="48" y="76">Registrar</text>
+          <text class="sm" x="48" y="100">Who may acquire a</text>
+          <text class="sm" x="48" y="116">name, at what price,</text>
+          <text class="sm" x="48" y="132">for how long.</text>
+          <text class="mono-s" x="48" y="162">ETH Registrar</text>
+
+          <rect class="b" x="325" y="46" width="190" height="136" rx="2"/>
+          <text class="hd" x="343" y="76">Registry</text>
+          <text class="sm" x="343" y="100">Who controls this</text>
+          <text class="sm" x="343" y="116">node, and which</text>
+          <text class="sm" x="343" y="132">resolver speaks for it.</text>
+          <text class="mono-s" x="343" y="162">0x0000…2e1e</text>
+
+          <rect class="b" x="620" y="46" width="190" height="136" rx="2"/>
+          <text class="hd" x="638" y="76">Resolver</text>
+          <text class="sm" x="638" y="100">What the name</text>
+          <text class="sm" x="638" y="116">actually says:</text>
+          <text class="sm" x="638" y="132">addr, text, contenthash.</text>
+          <text class="mono-s" x="638" y="162">pluggable — write your own</text>
+
+          <line x1="220" y1="114" x2="318" y2="114" marker-end="url(#a1)"/>
+          <text class="xs" x="269" y="105" text-anchor="middle">setSubnodeOwner</text>
+
+          <line x1="515" y1="114" x2="613" y2="114" marker-end="url(#a1)"/>
+          <text class="xs" x="564" y="105" text-anchor="middle">resolver(node)</text>
+
+          <text class="xs" x="30" y="212">The registry stores three fields per node — owner, resolver, ttl — and nothing else.</text>
+          <text class="xs" x="30" y="228">No addresses. No text. No prices. All meaning lives one layer to the right.</text>
+        </svg>
+      </div>
+      <figcaption>The registry is deliberately dumb, which is why the resolver is pluggable — and why "novel use of text records" keeps showing up in ENS bounties.</figcaption>
+    </figure>
+
+    <div class="callout">
+      <span class="tag">The subtlety worth knowing</span>
+      <p><strong>A registrar is not a protocol role.</strong> There is no registrar interface, no registration, no privileged status in the registry. A registrar is just a contract that happens to own a node and has opinions about who gets subnodes beneath it.</p>
+    </div>
+  </section>
+
+  <!-- ================= TREE ================= -->
+  <section id="tree">
+    <p class="eyebrow">Hierarchy</p>
+    <h2>Every node has an owner, including <code>eth</code></h2>
+    <p>The registry has no concept of a top-level domain. <code>eth</code> is an ordinary entry in the same mapping as <code>nikola.eth</code> — and like every entry, something owns it. That something is a contract.</p>
+
+    <figure>
+      <div class="sheet">
+        <svg class="d" viewBox="0 0 840 330" role="img" aria-label="A four-level ENS tree: the root node owned by the Root contract under ENS DAO, the eth node owned by the BaseRegistrar contract, nikola.eth owned by a user, and team.nikola.eth owned by whoever the user designates. Each owner may create any node directly beneath it via setSubnodeOwner.">
+          <defs>
+            <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+
+          <rect class="b" x="30" y="26" width="250" height="44" rx="2"/>
+          <text class="mono" x="46" y="53">root</text>
+          <text class="mono-s" x="200" y="53" text-anchor="end">0x00…00</text>
+          <text class="sm" x="420" y="53">owned by the Root contract — ENS DAO</text>
+
+          <rect class="b" x="78" y="96" width="250" height="44" rx="2"/>
+          <text class="mono" x="94" y="123">eth</text>
+          <text class="sm" x="420" y="123">owned by the BaseRegistrar</text>
+          <text class="mono-s" x="420" y="138">0x57f1…7eA85</text>
+
+          <rect class="b" x="126" y="166" width="250" height="44" rx="2"/>
+          <text class="mono" x="142" y="193">nikola.eth</text>
+          <text class="sm" x="420" y="193">owned by you</text>
+
+          <rect class="b" x="174" y="236" width="250" height="44" rx="2"/>
+          <text class="mono" x="190" y="263">team.nikola.eth</text>
+          <text class="sm" x="420" y="263">owned by whoever you designate</text>
+
+          <path class="edge" d="M50 70 L50 118 L71 118" marker-end="url(#a2)"/>
+          <path class="edge" d="M98 140 L98 188 L119 188" marker-end="url(#a2)"/>
+          <g class="acc">
+            <path class="edge" d="M146 210 L146 258 L167 258" marker-end="url(#a2)"/>
+            <text class="xs" x="156" y="232">setSubnodeOwner</text>
+          </g>
+
+          <line class="dash" x1="30" y1="300" x2="810" y2="300"/>
+          <text class="xs" x="30" y="322">The same call, the same authority, at every level. You are a registrar the moment you own a name.</text>
+        </svg>
+      </div>
+      <figcaption>Swap the contract that owns <code>eth</code> and you have swapped the entire economic policy of <code>.eth</code> — which is exactly what happened in 2019, when it moved from the original auction registrar to today's permanent registrar.</figcaption>
+    </figure>
+
+    <p>Verify the middle link yourself:</p>
+    <div class="tw"><table><tbody>
+      <tr><td class="m">cast call 0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e "owner(bytes32)(address)" 0x93cdeb70…fc4ae<br><span style="color:var(--muted)">→ 0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85</span></td></tr>
+    </tbody></table></div>
+  </section>
+
+  <!-- ================= HASHES ================= -->
+  <section id="hashes">
+    <p class="eyebrow">Identity</p>
+    <h2>On-chain, a name is a hash — the string is never stored</h2>
+    <p>Before anything touches the chain, a name passes through a pipeline that ends in a 32-byte <code>namehash</code>. Every contract in ENS works exclusively with the output.</p>
+
+    <figure>
+      <div class="sheet">
+        <svg class="d" viewBox="0 0 840 210" role="img" aria-label="A four-step pipeline turning a typed name into a node: raw input, ENSIP-15 normalization off-chain, keccak256 of the label producing the labelhash, and the recursive namehash combining the parent node with the labelhash.">
+          <defs>
+            <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+
+          <text class="eb" x="20" y="34">1 · INPUT</text>
+          <rect class="b" x="20" y="46" width="170" height="92" rx="2"/>
+          <text class="mono" x="36" y="76">Nikola.ETH</text>
+          <text class="sm" x="36" y="100">whatever the</text>
+          <text class="sm" x="36" y="116">user typed</text>
+
+          <text class="eb" x="230" y="34">2 · NORMALIZE</text>
+          <rect class="b" x="230" y="46" width="170" height="92" rx="2"/>
+          <text class="mono" x="246" y="76">nikola.eth</text>
+          <text class="sm" x="246" y="100">ENSIP-15,</text>
+          <text class="sm" x="246" y="116">off-chain only</text>
+
+          <text class="eb" x="440" y="34">3 · LABELHASH</text>
+          <rect class="b" x="440" y="46" width="170" height="92" rx="2"/>
+          <text class="mono-s" x="456" y="74">keccak256("nikola")</text>
+          <text class="sm" x="456" y="100">the ERC-721</text>
+          <text class="sm" x="456" y="116">tokenId</text>
+
+          <text class="eb" x="650" y="34">4 · NAMEHASH</text>
+          <rect class="b" x="650" y="46" width="170" height="92" rx="2"/>
+          <text class="mono-s" x="666" y="70">keccak256(</text>
+          <text class="mono-s" x="666" y="84">  node("eth") ‖ label)</text>
+          <text class="sm" x="666" y="108">the registry key,</text>
+          <text class="sm" x="666" y="124">recursive</text>
+
+          <line x1="190" y1="92" x2="224" y2="92" marker-end="url(#a3)"/>
+          <line x1="400" y1="92" x2="434" y2="92" marker-end="url(#a3)"/>
+          <line x1="610" y1="92" x2="644" y2="92" marker-end="url(#a3)"/>
+
+          <g class="acc">
+            <line class="dash" x1="20" y1="164" x2="820" y2="164"/>
+            <text class="xs" x="20" y="188">keccak256 is one-way. Steps 1–3 happen in your client; only step 4 ever exists on-chain.</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>Two different hashes do two different jobs: the ERC-721 NFT is keyed by <strong>labelhash</strong>, the registry and every resolver are keyed by <strong>namehash</strong>. Mixing them up is the classic ENS integration bug.</figcaption>
+    </figure>
+
+    <h3>So where does the readable string survive?</h3>
+    <p>In exactly two places: the <strong>calldata</strong> of the registration transaction, and one <strong>event log</strong> — <code>ETHRegistrarController.NameRegistered(string name, …)</code> emits the plaintext. The BaseRegistrar's identically-named event emits only the tokenId.</p>
+    <p>This is why the ENS Subgraph and tools like <code>ens-indexer</code> exist at all: reconstructing the hash-to-string map is a permanent, ongoing job that the protocol itself does not do.</p>
+
+    <div class="callout">
+      <span class="tag">Normalization is a security boundary, not cosmetics</span>
+      <p>ENSIP-15 defines what a valid name even is — Unicode handling, emoji sequences, confusable characters, script mixing. It needs thousands of codepoints of lookup data, so <strong>it cannot run on the EVM</strong>. It lives entirely in client libraries such as <code>@adraffy/ens-normalize</code>. Contracts see only hashes and are structurally incapable of validating a name. Skip normalization in your client and you have introduced a spoofing bug, not a display glitch.</p>
+    </div>
+  </section>
+
+  <!-- ================= ISSUANCE ================= -->
+  <section id="issue">
+    <p class="eyebrow">Issuance</p>
+    <h2>Four ways a name comes into existence</h2>
+    <p>All four produce a name that resolves identically to a correct client. They differ entirely in who controls issuance and what it costs.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Route</th><th>Who issues</th><th>Cost</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td><strong>.eth registration</strong></td><td>ETH Registrar, permissionlessly</td><td>Annual rent + gas</td><td class="m">nikola.eth</td></tr>
+        <tr><td><strong>Subname</strong></td><td>The parent name's owner, on their terms</td><td>Gas, whatever the parent charges</td><td class="m">team.nikola.eth</td></tr>
+        <tr><td><strong>Offchain / L2</strong><br><span style="color:var(--muted);font-size:13px">ENSIP-10 + CCIP-Read</span></td><td>A gateway the parent controls</td><td>Free, instant, unlimited scale</td><td class="m">alice.base.eth</td></tr>
+        <tr><td><strong>DNS import</strong></td><td>The DNS registrant, via DNSSEC</td><td>Gasless</td><td class="m">ensfairy.xyz</td></tr>
+      </tbody>
+    </table></div>
+    <p>The third row is the one that reshaped the protocol. A resolver can decline to answer and instead <em>revert</em> with <code>OffchainLookup</code>; the client catches that revert, queries the named gateway, and verifies the signed response. Resolution completes normally — but the data never lived on mainnet.</p>
+    <p><strong>ENS is a mainnet-rooted resolution protocol whose data increasingly is not on mainnet.</strong> Lookup always starts on mainnet — that is the trust anchor — and then follows pointers outward.</p>
+  </section>
+
+  <!-- ================= LIFECYCLE ================= -->
+  <section id="lifecycle">
+    <p class="eyebrow">Lifecycle</p>
+    <h2>What happens to a <code>.eth</code> name over time</h2>
+    <p>Unlike the rest of ENS, <code>.eth</code> names are <em>rented</em>, not owned outright. The registrar enforces a five-stage cycle; the registry knows nothing about any of it.</p>
+
+    <figure>
+      <div class="sheet">
+        <svg class="d" viewBox="0 0 840 260" role="img" aria-label="Timeline of a .eth name: available, then registered for the paid duration, then a 90-day grace period during which only the original owner may renew, then a 21-day temporary premium during which anyone may register it, then available again at normal price. The name continues to resolve through registration and the grace period.">
+          <text class="xs" x="130" y="76" text-anchor="middle">register</text>
+          <text class="xs" x="420" y="76" text-anchor="middle">expiry</text>
+          <text class="xs" x="590" y="76" text-anchor="middle">+ 90 days</text>
+          <text class="xs" x="740" y="76" text-anchor="middle">+ 21 days</text>
+          <line x1="130" y1="82" x2="130" y2="95"/>
+          <line x1="420" y1="82" x2="420" y2="95"/>
+          <line x1="590" y1="82" x2="590" y2="95"/>
+          <line x1="740" y1="82" x2="740" y2="95"/>
+
+          <rect x="40" y="95" width="90" height="46" fill="var(--free)" fill-opacity=".18" stroke="var(--free)" stroke-opacity=".5"/>
+          <rect x="130" y="95" width="290" height="46" fill="var(--ok)" fill-opacity=".18" stroke="var(--ok)" stroke-opacity=".6"/>
+          <rect x="420" y="95" width="170" height="46" fill="var(--warn)" fill-opacity=".2" stroke="var(--warn)" stroke-opacity=".6"/>
+          <rect x="590" y="95" width="150" height="46" fill="var(--hot)" fill-opacity=".18" stroke="var(--hot)" stroke-opacity=".6"/>
+          <rect x="740" y="95" width="60" height="46" fill="var(--free)" fill-opacity=".18" stroke="var(--free)" stroke-opacity=".5"/>
+
+          <text class="mono-s" x="85" y="123" text-anchor="middle">available</text>
+          <text class="hd" x="275" y="124" text-anchor="middle">Registered</text>
+          <text class="hd" x="505" y="124" text-anchor="middle">Grace period</text>
+          <text class="hd" x="665" y="124" text-anchor="middle">Premium</text>
+          <text class="mono-s" x="770" y="123" text-anchor="middle">free</text>
+
+          <path class="edge" d="M130 158 L130 164 L590 164 L590 158"/>
+          <text class="xs" x="360" y="182" text-anchor="middle">the name keeps resolving this entire time — funds sent to it still arrive</text>
+
+          <text class="xs" x="132" y="212">You control records.</text>
+          <text class="xs" x="132" y="226">Renew any time.</text>
+          <text class="xs" x="132" y="240">$5/yr for 5+ chars.</text>
+
+          <text class="xs" x="422" y="212">Records frozen.</text>
+          <text class="xs" x="422" y="226">Only you can renew,</text>
+          <text class="xs" x="422" y="240">at the standard price.</text>
+
+          <text class="xs" x="592" y="212">Anyone may register.</text>
+          <text class="xs" x="592" y="226">Premium on top of</text>
+          <text class="xs" x="592" y="240">the annual fee.</text>
+
+          <text class="xs" x="742" y="212">Normal</text>
+          <text class="xs" x="742" y="226">price.</text>
+        </svg>
+      </div>
+      <figcaption>The grace period is the surprising part: an <em>expired</em> name still resolves and the NFT stays in your wallet for another 90 days. Expiry does not mean the name stops working — it means you stop being able to change it.</figcaption>
+    </figure>
+
+    <div class="phases">
+      <div class="phase"><div class="n">01</div><div>
+        <h4>Registered<span class="dur">your chosen duration</span></h4>
+        <p>You hold the ERC-721, control the registry entry, and can edit records, create subnames, transfer, or renew. Renewal is permissionless — anyone may extend anyone's name without gaining control of it.</p>
+      </div></div>
+      <div class="phase"><div class="n">02</div><div>
+        <h4>Expired<span class="dur">instant</span></h4>
+        <p>The registration end date passes. The name still points at its records, but it is frozen: no transfers, no marketplace listings, no resolver edits or subname creation on wrapped names.</p>
+      </div></div>
+      <div class="phase"><div class="n">03</div><div>
+        <h4>Grace period<span class="dur">90 days</span></h4>
+        <p>Still resolving, still in your wallet, still recoverable at the ordinary renewal price — and nobody else can take it. This is your safety net, and it is generous. ENSv2 shortens it to 28 days.</p>
+      </div></div>
+      <div class="phase"><div class="n">04</div><div>
+        <h4>Temporary premium<span class="dur">21 days</span></h4>
+        <p>The name must now be registered fresh rather than extended, and the previous owner has no priority. A premium is charged on top of the annual fee, starting at $100,000,000 and decaying to zero.</p>
+      </div></div>
+      <div class="phase"><div class="n">05</div><div>
+        <h4>Available<span class="dur">indefinite</span></h4>
+        <p>The premium reaches zero and the name returns to ordinary pricing, first come first served.</p>
+      </div></div>
+    </div>
+
+    <h3>Why the premium starts at $100 million</h3>
+    <p>It is not a valuation. It is an anti-sniping device: before it existed, bots claimed every expiring name the instant it dropped. A start price nobody will ever pay guarantees the auction begins above every bidder's limit and descends until it meets a real one.</p>
+
+    <figure>
+      <div class="sheet">
+        <svg class="d" viewBox="0 0 840 250" role="img" aria-label="The temporary premium decays exponentially, halving every 24 hours from 100 million dollars: about 50 million after one day, under 1 million by day 7, under 100 thousand by day 10, and effectively zero by day 21.">
+          <line x1="90" y1="40" x2="90" y2="190"/>
+          <line x1="90" y1="190" x2="790" y2="190"/>
+
+          <text class="xs" x="82" y="44" text-anchor="end">$100M</text>
+          <text class="xs" x="82" y="119" text-anchor="end">$50M</text>
+          <text class="xs" x="82" y="194" text-anchor="end">$0</text>
+          <line class="dash" x1="90" y1="40" x2="790" y2="40"/>
+          <line class="dash" x1="90" y1="115" x2="790" y2="115"/>
+
+          <text class="xs" x="90" y="212" text-anchor="middle">day 0</text>
+          <text class="xs" x="320" y="212" text-anchor="middle">day 7</text>
+          <text class="xs" x="550" y="212" text-anchor="middle">day 14</text>
+          <text class="xs" x="780" y="212" text-anchor="middle">day 21</text>
+
+          <g class="acc">
+            <polyline points="90,40 123,115 156,152 189,171 221,181 254,185 287,188 320,189 353,189.5 419,190 550,190 780,190" stroke-width="1.8"/>
+            <circle cx="90" cy="40" r="3" fill="var(--accent)" stroke="none"/>
+            <circle cx="320" cy="189" r="3" fill="var(--accent)" stroke="none"/>
+          </g>
+
+          <text class="xs" x="140" y="36">halves every 24 hours</text>
+          <text class="xs" x="332" y="176">by day 7 it is already under $1,000</text>
+
+          <text class="xs" x="90" y="240">A linear axis tells the honest story: the premium is only economically meaningful for about the first week.</text>
+        </svg>
+      </div>
+      <figcaption>Plotted linearly rather than logarithmically on purpose — the cliff <em>is</em> the mechanism.</figcaption>
+    </figure>
+
+    <h3>Registration pricing</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Label length</th><th class="m">Price</th><th>Rationale</th></tr></thead>
+      <tbody>
+        <tr><td>3 characters</td><td class="m">$640 / year</td><td>Scarce, heavily contested</td></tr>
+        <tr><td>4 characters</td><td class="m">$160 / year</td><td>Scarce</td></tr>
+        <tr><td>5 or more</td><td class="m">$5 / year</td><td>Effectively unlimited supply</td></tr>
+      </tbody>
+    </table></div>
+    <p>Priced in USD, paid in ETH, plus gas. Rent is what keeps the namespace from being permanently squatted at zero marginal cost.</p>
+  </section>
+
+  <!-- ================= REGISTRATION ================= -->
+  <section id="register">
+    <p class="eyebrow">Mechanics</p>
+    <h2>Inside a registration transaction</h2>
+    <p>Registration is commit-reveal across two transactions, so that a bot watching the mempool cannot front-run your name out from under you. Four contracts participate.</p>
+
+    <figure>
+      <div class="sheet">
+        <svg class="d" viewBox="0 0 840 370" role="img" aria-label="Sequence of a .eth registration: the user commits a hash to the controller, waits at least 60 seconds, then calls register with payment; the controller instructs the BaseRegistrar to mint the ERC-721 keyed by labelhash; the BaseRegistrar calls setSubnodeOwner on the registry; the controller then sets the resolver on the registry and writes initial records to the resolver.">
+          <defs>
+            <marker id="a4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+
+          <rect class="b" x="5" y="18" width="110" height="38" rx="2"/>
+          <text class="mono-s" x="60" y="42" text-anchor="middle">You</text>
+          <rect class="b" x="185" y="18" width="110" height="38" rx="2"/>
+          <text class="mono-s" x="240" y="42" text-anchor="middle">Controller</text>
+          <rect class="b" x="365" y="18" width="110" height="38" rx="2"/>
+          <text class="mono-s" x="420" y="42" text-anchor="middle">BaseRegistrar</text>
+          <rect class="b" x="545" y="18" width="110" height="38" rx="2"/>
+          <text class="mono-s" x="600" y="42" text-anchor="middle">Registry</text>
+          <rect class="b" x="720" y="18" width="110" height="38" rx="2"/>
+          <text class="mono-s" x="775" y="42" text-anchor="middle">Resolver</text>
+
+          <line class="dash" x1="60" y1="60" x2="60" y2="340"/>
+          <line class="dash" x1="240" y1="60" x2="240" y2="340"/>
+          <line class="dash" x1="420" y1="60" x2="420" y2="340"/>
+          <line class="dash" x1="600" y1="60" x2="600" y2="340"/>
+          <line class="dash" x1="775" y1="60" x2="775" y2="340"/>
+
+          <text class="xs" x="66" y="88">commit(hash)</text>
+          <line x1="60" y1="95" x2="234" y2="95" marker-end="url(#a4)"/>
+
+          <rect class="plain" x="250" y="112" width="104" height="24" rx="2"/>
+          <text class="xs" x="302" y="128" text-anchor="middle">wait ≥ 60 s</text>
+
+          <text class="xs" x="66" y="163">register(name, duration) + ETH</text>
+          <line x1="60" y1="170" x2="234" y2="170" marker-end="url(#a4)"/>
+
+          <text class="xs" x="246" y="203">register(labelhash, owner)</text>
+          <line x1="240" y1="210" x2="414" y2="210" marker-end="url(#a4)"/>
+          <text class="xs" x="426" y="228">mints ERC-721, tokenId = labelhash</text>
+
+          <text class="xs" x="426" y="263">setSubnodeOwner(node("eth"), …)</text>
+          <line x1="420" y1="270" x2="594" y2="270" marker-end="url(#a4)"/>
+          <text class="xs" x="606" y="288">records[namehash].owner = you</text>
+
+          <text class="xs" x="246" y="308">setResolver(node, resolver)</text>
+          <line x1="240" y1="315" x2="594" y2="315" marker-end="url(#a4)"/>
+
+          <g class="acc">
+            <text class="xs" x="246" y="338">setAddr / setText</text>
+            <line x1="240" y1="345" x2="769" y2="345" marker-end="url(#a4)"/>
+          </g>
+        </svg>
+      </div>
+      <figcaption>Only the Controller ever sees the string <code>"nikola"</code>. By the time the call reaches the BaseRegistrar it is a labelhash, and by the Registry it is a namehash.</figcaption>
+    </figure>
+
+    <div class="callout">
+      <span class="tag">Two owners, and they can differ</span>
+      <p>The <strong>NFT owner</strong> (BaseRegistrar) holds the property right. The <strong>registry owner</strong> controls resolution. They are usually the same address, but the NFT owner can always call <code>reclaim()</code> to take registry control back. Selling the NFT transfers the underlying right regardless of who the registry currently lists — which is exactly the trap in any "I'll rent you control of my name" arrangement.</p>
+    </div>
+  </section>
+
+  <!-- ================= STORAGE ================= -->
+  <section id="storage">
+    <p class="eyebrow">State</p>
+    <h2>Where each byte physically lives</h2>
+    <div class="tw"><table>
+      <thead><tr><th>Contract</th><th>Storage</th><th>Keyed by</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Registry</strong></td><td class="m">mapping(bytes32 =&gt; {owner, resolver, ttl})</td><td class="m">namehash</td></tr>
+        <tr><td><strong>BaseRegistrar</strong></td><td class="m">ERC-721 _owners, expiries[tokenId]</td><td class="m">labelhash</td></tr>
+        <tr><td><strong>PublicResolver</strong></td><td class="m">addr, text, contenthash mappings</td><td class="m">namehash</td></tr>
+        <tr><td><strong>NameWrapper</strong> <span style="color:var(--muted);font-size:12px">(v1, if wrapped)</span></td><td class="m">ERC-1155 balances, fuses, expiry</td><td class="m">namehash</td></tr>
+        <tr><td><strong>Reverse resolver</strong></td><td class="m">name(bytes32) → string</td><td class="m">reverse node</td></tr>
+      </tbody>
+    </table></div>
+    <p>Note the last row. Forward resolution is hash-only; <strong>reverse records store the actual string</strong>. They have to — you cannot invert a hash to display a name. That asymmetry is the whole reason primary names work.</p>
+  </section>
+
+  <!-- ================= RESOLUTION ================= -->
+  <section id="resolve">
+    <p class="eyebrow">Resolution</p>
+    <h2>Name to address, including the offchain path</h2>
+    <p>Modern clients make one call to the Universal Resolver, which walks the registry, finds the resolver, and transparently handles the CCIP-Read branch.</p>
+
+    <figure>
+      <div class="sheet">
+        <svg class="d" viewBox="0 0 840 350" role="img" aria-label="Forward resolution: the app calls resolve on the Universal Resolver, which reads the resolver address from the registry and then queries that resolver. An on-chain resolver returns the record directly. An offchain resolver instead reverts with OffchainLookup, the client queries the gateway, and the signed response is verified and returned.">
+          <defs>
+            <marker id="a5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+
+          <rect class="b" x="20" y="120" width="130" height="56" rx="2"/>
+          <text class="hd" x="85" y="146" text-anchor="middle">Your app</text>
+          <text class="mono-s" x="85" y="163" text-anchor="middle">viem / ethers</text>
+
+          <rect class="b" x="250" y="120" width="160" height="56" rx="2"/>
+          <text class="hd" x="330" y="146" text-anchor="middle">Universal Resolver</text>
+          <text class="mono-s" x="330" y="163" text-anchor="middle">mainnet, always</text>
+
+          <rect class="b" x="500" y="28" width="150" height="56" rx="2"/>
+          <text class="hd" x="575" y="54" text-anchor="middle">Registry</text>
+          <text class="mono-s" x="575" y="71" text-anchor="middle">who resolves this?</text>
+
+          <rect class="b" x="500" y="120" width="150" height="56" rx="2"/>
+          <text class="hd" x="575" y="146" text-anchor="middle">Resolver</text>
+
+          <rect class="b" x="700" y="120" width="130" height="56" rx="2"/>
+          <text class="sm" x="765" y="143" text-anchor="middle">on-chain</text>
+          <text class="sm" x="765" y="159" text-anchor="middle">record</text>
+
+          <rect class="b" x="700" y="248" width="130" height="56" rx="2"/>
+          <text class="sm" x="765" y="271" text-anchor="middle">gateway</text>
+          <text class="sm" x="765" y="287" text-anchor="middle">L2 or database</text>
+
+          <text class="xs" x="200" y="139" text-anchor="middle">resolve(name, data)</text>
+          <line x1="150" y1="148" x2="244" y2="148" marker-end="url(#a5)"/>
+
+          <path class="edge" d="M330 120 L330 56 L494 56" marker-end="url(#a5)"/>
+          <text class="xs" x="412" y="48" text-anchor="middle">resolver(node)</text>
+
+          <text class="xs" x="455" y="139" text-anchor="middle">addr(node)</text>
+          <line x1="410" y1="148" x2="494" y2="148" marker-end="url(#a5)"/>
+
+          <text class="xs" x="675" y="139" text-anchor="middle">value</text>
+          <line x1="650" y1="148" x2="694" y2="148" marker-end="url(#a5)"/>
+
+          <g class="acc">
+            <path class="edge" d="M575 176 L575 276 L694 276" marker-end="url(#a5)"/>
+            <text class="xs" x="583" y="212">reverts with</text>
+            <text class="xs" x="583" y="226">OffchainLookup</text>
+            <path class="edge" d="M700 304 L330 304 L330 182" marker-end="url(#a5)"/>
+            <text class="xs" x="515" y="322" text-anchor="middle">signed response, verified against the on-chain resolver</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>Two paths, one API. This is why <code>alice.base.eth</code> resolves in your wallet despite having no mainnet state of its own — and why an app that hand-rolls registry calls instead of using the Universal Resolver silently breaks on L2 names.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ================= REVERSE ================= -->
+  <section id="reverse">
+    <p class="eyebrow">Resolution</p>
+    <h2>Address to name, and why it must be verified</h2>
+    <p>Reverse resolution uses a reserved namespace: <code>&lt;lowercase-hex-address&gt;.addr.reverse</code>, read with <code>name(bytes32)</code>. Anyone can set a reverse record to any string, so on its own it proves nothing.</p>
+
+    <figure>
+      <div class="sheet">
+        <svg class="d" viewBox="0 0 840 250" role="img" aria-label="Reverse resolution: an address maps through the reverse namespace to a name string, and the client must then forward-resolve that name and confirm it points back to the original address before displaying it.">
+          <defs>
+            <marker id="a6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+
+          <rect class="b" x="30" y="62" width="200" height="60" rx="2"/>
+          <text class="mono" x="130" y="90" text-anchor="middle">0xA1b2…c3d4</text>
+          <text class="sm" x="130" y="108" text-anchor="middle">an address</text>
+
+          <rect class="b" x="300" y="62" width="230" height="60" rx="2"/>
+          <text class="mono-s" x="415" y="88" text-anchor="middle">&lt;addr&gt;.addr.reverse</text>
+          <text class="sm" x="415" y="106" text-anchor="middle">reverse resolver</text>
+
+          <rect class="b" x="600" y="62" width="200" height="60" rx="2"/>
+          <text class="mono" x="700" y="90" text-anchor="middle">"nikola.eth"</text>
+          <text class="sm" x="700" y="108" text-anchor="middle">a claim, not a fact</text>
+
+          <text class="xs" x="265" y="83" text-anchor="middle">name()</text>
+          <line x1="230" y1="92" x2="294" y2="92" marker-end="url(#a6)"/>
+          <text class="xs" x="565" y="83" text-anchor="middle">string</text>
+          <line x1="530" y1="92" x2="594" y2="92" marker-end="url(#a6)"/>
+
+          <g class="acc">
+            <path class="edge" d="M700 122 L700 178 L130 178 L130 128" marker-end="url(#a6)"/>
+            <text class="xs" x="415" y="198" text-anchor="middle">forward-verify: addr("nikola.eth") must equal 0xA1b2…c3d4</text>
+          </g>
+
+          <text class="xs" x="30" y="232">If the loop does not close, display the raw address. Wallets that skip this step show spoofable names.</text>
+        </svg>
+      </div>
+      <figcaption>Primary names are only trustworthy because of the return arrow. viem and ethers do this for you; hand-rolled reverse lookups usually do not.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ================= V2 ================= -->
+  <section id="v2">
+    <p class="eyebrow">What is changing</p>
+    <h2>ENSv2, and the Namechain that isn't happening</h2>
+    <p>ENS spent 2024 and 2025 building a dedicated Layer 2, Namechain, to host ENSv2. <strong>In February 2026 they cancelled it</strong> and moved ENSv2 directly onto mainnet, citing Ethereum's own scaling: registration gas costs fell roughly 99% over the preceding year as the gas limit went from 30M to 60M in 2025, with a 200M target for 2026. A great deal of writing still online assumes Namechain is coming. It is not.</p>
+
+    <h3>What actually changes</h3>
+    <ul>
+      <li><strong>Hierarchical registries</strong> replace the single flat registry. <code>sub.alice.eth</code> becomes a chain of entries linked by subregistry pointers, and any name owner can deploy their own subname registry with custom ownership and transfer rules. This is the headline change — the v1 combination of flat registry plus NameWrapper gives way to explicit, composable delegation. The pattern this page describes as a convention becomes first-class.</li>
+      <li><strong>Per-account permissioned resolvers</strong> instead of one shared PublicResolver, with fine-grained per-record permissions. The resolver <em>interface</em> is unchanged, and custom resolvers remain fully supported.</li>
+      <li><strong>Universal Resolver V2</strong> as the single entry point that walks the new hierarchy and orchestrates CCIP-Read.</li>
+      <li><strong>Grace period drops from 90 to 28 days</strong>, alongside one-step registration and stablecoin payments.</li>
+    </ul>
+
+    <h3>What you have to do about it</h3>
+    <p>Less than you would expect. ENS's own guidance is that for most applications, readiness is simply updating your libraries — <code>viem ≥ 2.35.0</code>, <code>ethers ≥ 6.17.0</code>, <code>ENSjs ≥ 4.2.3</code>. What breaks is custom resolution logic and stale dependencies.</p>
+    <p>Status as of August 2026: contract documentation is published, the new App and Explorer are in public alpha, release is targeted during 2026, and production traffic is still largely v1. Verify the current deployment state before you build against it.</p>
+  </section>
+
+  <!-- ================= CHECKLIST ================= -->
+  <section id="checklist">
+    <p class="eyebrow">Practice</p>
+    <h2>Integration checklist</h2>
+    <div class="checklist">
+      <div class="check"><span class="mk">01</span><p><strong>Normalize every name before hashing it.</strong> Use <code>@adraffy/ens-normalize</code> or a library that embeds it. This is a security control, not a formatting step.</p></div>
+      <div class="check"><span class="mk">02</span><p><strong>Compare namehashes, never raw strings.</strong> Any logic that matches names by string equality can be defeated by an unnormalized or trailing-dot variant.</p></div>
+      <div class="check"><span class="mk">03</span><p><strong>Stop gating on <code>.endsWith(".eth")</code>.</strong> Treat any dot-separated string as a candidate name, or you will silently break every DNS-imported domain.</p></div>
+      <div class="check"><span class="mk">04</span><p><strong>Keep a mainnet client even in an L2-only app.</strong> Resolution always begins on mainnet, whatever chain you are transacting on.</p></div>
+      <div class="check"><span class="mk">05</span><p><strong>Specify <code>coinType</code> for multichain addresses.</strong> Otherwise you will route funds to the wrong network's address.</p></div>
+      <div class="check"><span class="mk">06</span><p><strong>Forward-verify every reverse lookup</strong> before displaying a name, or fall back to the raw address.</p></div>
+      <div class="check"><span class="mk">07</span><p><strong>Read live, not from an indexer,</strong> anywhere the answer is security-relevant. Indexed data lags, and offchain names emit no mainnet logs at all.</p></div>
+      <div class="check"><span class="mk">08</span><p><strong>Use a real RPC provider.</strong> ENS resolution dies quietly when the mainnet endpoint does, and public RPCs fail exactly when a room full of people are demoing at once.</p></div>
+    </div>
+  </section>
+
+  <!-- ================= ADDRESSES ================= -->
+  <section id="addresses">
+    <p class="eyebrow">Reference</p>
+    <h2>Mainnet addresses</h2>
+    <div class="tw"><table>
+      <thead><tr><th>Contract</th><th class="m">Address</th></tr></thead>
+      <tbody>
+        <tr><td>Registry</td><td class="m">0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e</td></tr>
+        <tr><td>Base Registrar</td><td class="m">0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85</td></tr>
+        <tr><td>ETH Registrar Controller</td><td class="m">0x59E16fcCd424Cc24e280Be16E11Bcd56fb0CE547</td></tr>
+        <tr><td>Public Resolver</td><td class="m">0xF29100983E058B709F3D539b0c765937B804AC15</td></tr>
+        <tr><td>Reverse Registrar (L1)</td><td class="m">0xa58E81fe9b61B5c3fE2AFD33CF304c454AbFc7Cb</td></tr>
+        <tr><td>Name Wrapper</td><td class="m">0xD4416b13d2b3a9aBae7AcD5D6C2BbDBE25686401</td></tr>
+        <tr><td>Universal Resolver</td><td class="m">0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe</td></tr>
+      </tbody>
+    </table></div>
+    <p style="color:var(--muted);font-size:14px">Controller, resolver, and Universal Resolver addresses are versioned and do change. Confirm against the ENS deployments page before hardcoding any of them.</p>
+  </section>
+
+  <footer>
+    <p>Compiled August 2026 for ETHBelgrade. Figures are hand-drawn SVG; values verified against ENS documentation at time of writing.</p>
+    <ul>
+      <li><a href="https://docs.ens.domains/learn/protocol/">ENS protocol documentation</a></li>
+      <li><a href="https://docs.ens.domains/contracts/ensv2/overview/">ENSv2 contracts overview</a></li>
+      <li><a href="https://docs.ens.domains/web/ensv2-readiness">ENSv2 readiness for app developers</a></li>
+      <li><a href="https://docs.ens.domains/ensip/15/">ENSIP-15 — name normalization</a></li>
+      <li><a href="https://docs.ens.domains/learn/ccip-read/">CCIP-Read and offchain resolution</a></li>
+      <li><a href="https://support.ens.domains/en/articles/8046877-eth-name-lifecycle">.eth name lifecycle</a></li>
+      <li><a href="https://support.ens.domains/en/articles/7900612-temporary-premium">Temporary premium auction</a></li>
+      <li><a href="https://docs.ens.domains/learn/deployments">Contract deployments</a></li>
+    </ul>
+  </footer>
+
+  </main>
+</div>
+</div>
