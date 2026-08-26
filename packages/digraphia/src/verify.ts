@@ -26,6 +26,11 @@ export type CheckId =
 export interface Check {
   id: CheckId;
   ok: boolean;
+  /**
+   * 'required' checks gate the link. 'advisory' checks are reported but do
+   * not, on their own, make a link invalid.
+   */
+  severity: 'required' | 'advisory';
   /** Human-readable statement of what was proven, or why it failed. */
   detail: string;
 }
@@ -103,12 +108,14 @@ export async function verifyLink(
     checks.push({
       id: 'normalize',
       ok: true,
+      severity: 'required',
       detail: `Both normalize under ENSIP-15: ${a.normalized} / ${b.normalized}`,
     });
   } catch (err) {
     checks.push({
       id: 'normalize',
       ok: false,
+      severity: 'required',
       detail: err instanceof Error ? err.message : String(err),
     });
     return { linked: false, checks, a, b };
@@ -119,20 +126,34 @@ export async function verifyLink(
   checks.push({
     id: 'distinct',
     ok: distinct,
+    severity: 'required',
     detail: distinct
       ? 'Distinct namehashes.'
       : 'Both inputs normalize to the same node; a name cannot be its own twin.',
   });
   if (!distinct) return { linked: false, checks, a, b };
 
-  // 3. different script groups
+  // 3. different script groups - ADVISORY, not a gate.
+  //
+  // ENSIP-15 groups are coarser than writing systems. The two largest
+  // script-variant populations on earth both fall inside a single group:
+  //
+  //   台灣 / 台湾        both 'Han'       (Traditional / Simplified Chinese)
+  //   とうきょう / トウキョウ  both 'Japanese'  (hiragana / katakana)
+  //
+  // Gating on differing groups would reject them. Distinct nodes plus a
+  // mutual assertion is the real security property; the script difference
+  // is descriptive colour, so it is reported and never enforced.
   const scriptsDiffer = a.script !== b.script;
   checks.push({
     id: 'scripts-differ',
     ok: scriptsDiffer,
+    severity: 'advisory',
     detail: scriptsDiffer
       ? `Different ENSIP-15 script groups: ${a.script} vs ${b.script}.`
-      : `Both labels are in the ${a.script} group; this is not a cross-script pair.`,
+      : `Both labels are in the ${a.script} group. ENSIP-15 groups are coarser `
+        + `than writing systems (Simplified and Traditional Han share a group), `
+        + `so this does not invalidate the link.`,
   });
 
   // 4 + 5. mutual assertion, compared by namehash
@@ -156,6 +177,7 @@ export async function verifyLink(
   checks.push({
     id: 'record-a-to-b',
     ok: aToB,
+    severity: 'required',
     detail: aToB
       ? `${a.normalized} → ${recA} (namehash matches ${b.normalized}).`
       : recA
@@ -167,6 +189,7 @@ export async function verifyLink(
   checks.push({
     id: 'record-b-to-a',
     ok: bToA,
+    severity: 'required',
     detail: bToA
       ? `${b.normalized} → ${recB} (namehash matches ${a.normalized}).`
       : recB
@@ -187,6 +210,7 @@ export async function verifyLink(
   checks.push({
     id: 'addr-match',
     ok: addrMatch,
+    severity: 'required',
     detail: !bothSet
       ? 'At least one name has no address set.'
       : addrMatch
@@ -194,5 +218,6 @@ export async function verifyLink(
         : `Addresses differ: ${addrA} vs ${addrB}.`,
   });
 
-  return { linked: checks.every((c) => c.ok), checks, a, b };
+  const required = checks.filter((c) => c.severity === 'required');
+  return { linked: required.every((c) => c.ok), checks, a, b };
 }

@@ -118,17 +118,48 @@ describe('verifyLink', () => {
     expect(failed(r)).toContain('distinct');
   });
 
-  it('rejects a same-script pair even when mutually asserted', async () => {
+  // ENSIP-15 groups are coarser than writing systems, so a same-group pair
+  // is still a valid link. Simplified and Traditional Han share a group.
+  it('accepts a same-group pair, flagging the script check as advisory', async () => {
     const r = await verifyLink(
       client({
-        'nikola.eth': { link: 'nikolas.eth', addr: ALICE },
-        'nikolas.eth': { link: 'nikola.eth', addr: ALICE },
+        '台灣.eth': { link: '台湾.eth', addr: ALICE },
+        '台湾.eth': { link: '台灣.eth', addr: ALICE },
       }),
-      'nikola.eth',
-      'nikolas.eth',
+      '台灣.eth',
+      '台湾.eth',
+    );
+    expect(r.a.script).toBe('Han');
+    expect(r.b.script).toBe('Han');
+    expect(failed(r)).toEqual(['scripts-differ']);
+    const scriptCheck = r.checks.find((c) => c.id === 'scripts-differ')!;
+    expect(scriptCheck.severity).toBe('advisory');
+    expect(r.linked).toBe(true); // advisory failure does not gate
+  });
+
+  it('accepts Japanese hiragana/katakana, also one group', async () => {
+    const r = await verifyLink(
+      client({
+        'とうきょう.eth': { link: 'トウキョウ.eth', addr: ALICE },
+        'トウキョウ.eth': { link: 'とうきょう.eth', addr: ALICE },
+      }),
+      'とうきょう.eth',
+      'トウキョウ.eth',
+    );
+    expect(r.linked).toBe(true);
+  });
+
+  it('still gates on the required checks for a same-group pair', async () => {
+    const r = await verifyLink(
+      client({
+        '台灣.eth': { link: '台湾.eth', addr: ALICE },
+        '台湾.eth': { addr: ALICE }, // no counter-assertion
+      }),
+      '台灣.eth',
+      '台湾.eth',
     );
     expect(r.linked).toBe(false);
-    expect(failed(r)).toEqual(['scripts-differ']);
+    expect(failed(r)).toContain('record-b-to-a');
   });
 
   it('reports an unnormalizable input with ENSIP-15 own message', async () => {
