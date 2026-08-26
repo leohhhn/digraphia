@@ -255,31 +255,27 @@ entirely from who is able to write which resolver record.
 
 ```mermaid
 flowchart TB
-    subgraph client["CLIENT — @digraphia/core"]
-        direction TB
-        T["translit.ts<br/>Cyrillic→Latin total<br/>Latin→Cyrillic ⇒ candidate set"]
-        V["verify.ts<br/>verifyLink()"]
-        N["@adraffy/ens-normalize<br/>ENSIP-15 normalize + script group"]
-        V --> N
-        T --> N
+    UI["&lt;LinkedIdentity /&gt;<br/>renders the verified pair as ONE identity"]
+
+    subgraph client["CLIENT · @digraphia/core"]
+        V["<b>verify.ts</b><br/>verifyLink()"]
+        T["<b>translit.ts</b><br/>Cyrillic→Latin: total<br/>Latin→Cyrillic: candidate set"]
+        N["<b>@adraffy/ens-normalize</b><br/>ENSIP-15 normalize + script group"]
     end
 
-    subgraph chain["ETHEREUM MAINNET — no new contracts"]
-        direction TB
-        UR["Universal Resolver<br/>0xeEeE…EeEe<br/>resolve(name, data)"]
-        REG["ENS Registry<br/>0x0000…2e1e<br/>owner / resolver"]
-        RES["PublicResolver<br/>text() · addr()"]
-        UR --> REG
-        UR --> RES
+    subgraph chain["ETHEREUM MAINNET · no new contracts"]
+        UR["<b>Universal Resolver</b><br/>0xeEeE…EeEe"]
+        REG["<b>ENS Registry</b><br/>0x0000…2e1e<br/>owner · resolver"]
+        RES["<b>PublicResolver</b><br/>text() · addr()"]
     end
 
-    V -->|"live eth_call — never an indexer"| UR
+    UI --> V
+    V --> T
+    V --> N
+    V -->|"live eth_call<br/>never an indexer"| UR
+    UR --> REG
+    UR --> RES
     RES -.->|"rs.dvopis.alt → twin<br/>addr() → address"| V
-
-    UI["<LinkedIdentity /><br/>renders the verified pair<br/>as ONE identity"] --> V
-
-    style client fill:#0f172a,stroke:#334155,color:#e2e8f0
-    style chain fill:#0f172a,stroke:#334155,color:#e2e8f0
 ```
 
 ### 3.5 The verification algorithm
@@ -289,35 +285,27 @@ human-readable statement of what was proven, so a UI can render a chain of
 evidence instead of a boolean.
 
 ```mermaid
-flowchart TD
-    S(["verifyLink(a, b)"]) --> C1
+flowchart TB
+    A(["verifyLink(a, b)"]) --> C1
+    C1["<b>1 · normalize</b>&nbsp;&nbsp;<i>required</i><br/>ENSIP-15 accepts both labels"]
+    C2["<b>2 · distinct</b>&nbsp;&nbsp;<i>required</i><br/>namehash(a) ≠ namehash(b)"]
+    C3["<b>3 · scripts-differ</b>&nbsp;&nbsp;<i>advisory</i><br/>reported, never gates — Han/Han is a valid pair"]
+    C4["<b>4 · record a→b</b>&nbsp;&nbsp;<i>required</i><br/>namehash(text(a,'rs.dvopis.alt')) == node(b)"]
+    C5["<b>5 · record b→a</b>&nbsp;&nbsp;<i>required</i><br/>the counter-assertion — a squatter cannot forge it"]
+    C6["<b>6 · addr-match</b>&nbsp;&nbsp;<i>required</i><br/>addr(a) == addr(b) ≠ 0"]
 
-    C1{"1 · normalize<br/>ENSIP-15 accepts both?"}
-    C1 -->|no| X(["✗ not linked"])
-    C1 -->|yes| C2
+    C1 --> C2 --> C3 --> C4 --> C5 --> C6 --> OK(["✓ linked"])
 
-    C2{"2 · distinct<br/>namehash a ≠ namehash b?"}
-    C2 -->|no| X
-    C2 -->|yes| C3
+    FAIL(["✗ not linked"])
+    C1 -.->|fails| FAIL
+    C2 -.->|fails| FAIL
+    C4 -.->|fails| FAIL
+    C5 -.->|fails| FAIL
+    C6 -.->|fails| FAIL
 
-    C3["3 · scripts-differ<br/>ADVISORY — reported, never gates<br/>Han/Han is still a valid pair"]
-    C3 --> C4
-
-    C4{"4 · record a→b<br/>text(a,'rs.dvopis.alt')<br/>namehash == node(b)?"}
-    C4 -->|no| X
-    C4 -->|yes| C5
-
-    C5{"5 · record b→a<br/>the counter-assertion<br/>a squatter cannot forge this"}
-    C5 -->|no| X
-    C5 -->|yes| C6
-
-    C6{"6 · addr-match<br/>addr(a) == addr(b) ≠ 0?"}
-    C6 -->|no| X
-    C6 -->|yes| OK(["✓ linked"])
-
-    style OK fill:#064e3b,stroke:#10b981,color:#d1fae5
-    style X fill:#450a0a,stroke:#ef4444,color:#fee2e2
-    style C3 fill:#1e3a5f,stroke:#3b82f6,color:#dbeafe
+    style OK   fill:#064e3b,stroke:#10b981,color:#ecfdf5
+    style FAIL fill:#450a0a,stroke:#ef4444,color:#fef2f2
+    style C3   fill:#1e3a5f,stroke:#3b82f6,color:#eff6ff
 ```
 
 Two rules the implementation is strict about:
