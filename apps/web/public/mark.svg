@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122 130" width="122" height="130" role="img" aria-label="digraphia">
+  <title>digraphia</title>
+  <path d="M61 21 H22 A10 10 0 0 0 12 31 V99 A10 10 0 0 0 22 109 H61 Z" fill="#1f6feb"/>
+  <path d="M61 21 H100 A10 10 0 0 1 110 31 V99 A10 10 0 0 1 100 109 H61 Z" fill="none" stroke="#1f6feb" stroke-width="4"/>
+  <text x="36.5" y="65.0" text-anchor="middle" dominant-baseline="central" font-family="system-ui, -apple-system, &apos;Segoe UI&apos;, Roboto, &apos;Helvetica Neue&apos;, Arial, sans-serif" font-size="42" font-weight="600" fill="#ffffff">&#x434;</text>
+  <text x="85.5" y="65.0" text-anchor="middle" dominant-baseline="central" font-family="system-ui, -apple-system, &apos;Segoe UI&apos;, Roboto, &apos;Helvetica Neue&apos;, Arial, sans-serif" font-size="42" font-weight="600" fill="#1f6feb">d</text>
+</svg>

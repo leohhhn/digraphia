@@ -163,6 +163,25 @@ linked: false
 Neither can prove any relationship to the other, and no client can safely show
 them as one identity. That is what the convention exists to fix.
 
+### Deploy it
+
+`vercel.json` is committed, so importing the repo on Vercel needs no further
+configuration — it picks up the monorepo build:
+
+| Setting | Value |
+|---|---|
+| Install | `pnpm install --frozen-lockfile` |
+| Build | `pnpm build` |
+| Output | `apps/web/dist` |
+
+The build is fully static, so any static host works — `pnpm build` and serve
+`apps/web/dist`.
+
+Two optional environment variables, `VITE_SEPOLIA_RPC` and `VITE_MAINNET_RPC`
+(see `apps/web/.env.example`). They default to public endpoints that need no
+setup but rate-limit, which is exactly what happens when a room loads the same
+demo at once. Point them at your own provider for anything being shown live.
+
 ---
 
 ## Using the library

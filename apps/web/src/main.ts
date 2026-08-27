@@ -18,9 +18,18 @@ import {
 
 /* ------------------------------------------------------------------ chains */
 
+// Public endpoints are the default so a fresh clone works with no setup, but
+// they rate-limit - which is exactly what happens when a room full of people
+// loads the same demo at once. Override per deployment.
 const CHAINS = {
-  sepolia: { chain: sepolia, rpc: 'https://ethereum-sepolia-rpc.publicnode.com' },
-  mainnet: { chain: mainnet, rpc: 'https://eth.drpc.org' },
+  sepolia: {
+    chain: sepolia,
+    rpc: import.meta.env.VITE_SEPOLIA_RPC || 'https://ethereum-sepolia-rpc.publicnode.com',
+  },
+  mainnet: {
+    chain: mainnet,
+    rpc: import.meta.env.VITE_MAINNET_RPC || 'https://eth.drpc.org',
+  },
 } as const;
 type ChainKey = keyof typeof CHAINS;
 
