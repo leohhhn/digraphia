@@ -1,9 +1,14 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg">
-    <img src="assets/logo-light.svg" width="400"
-         alt="digraphia — cross-script identity linking for ENS">
-  </picture>
+  <a href="https://digraphia-web.vercel.app/">
+    <img src="assets/banner.png"
+         alt="digraphia — Two spellings. One person. Cross-script identity for ENS.">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://digraphia-web.vercel.app/"><b>Live demo</b></a>
+  &nbsp;·&nbsp;
+  <a href="./NOTES.md">Design notes</a>
 </p>
 
 `никола.eth` and `nikola.eth` are the same person. ENS has no way to know that.
@@ -12,8 +17,6 @@
 holder of both names *assert* the link — bidirectionally, so anyone can verify it
 without trusting an issuer, an oracle, or a registry contract. No new contracts:
 the whole protocol is two `setText` calls and client-side verification.
-
-Design rationale and research live in [`NOTES.md`](./NOTES.md).
 
 ---
 
@@ -102,8 +105,11 @@ the accompanying proposal suggests; see [NOTES.md §6](./NOTES.md).
 
 ## Try it
 
-Everything here runs against a **live verified pair on Sepolia** —
+It is deployed at **[digraphia-web.vercel.app](https://digraphia-web.vercel.app/)** — nothing to
+install. Everything below runs against a **live verified pair on Sepolia**,
 `ђорђе.eth` ↔ `djordje.eth`, mutually asserted and resolving to one address.
+
+To run it yourself:
 
 ```bash
 git clone <this-repo> && cd hackathon-ethbg26
@@ -336,7 +342,7 @@ the global `alt-script` is ever standardised.
 ```
 packages/digraphia/   @digraphia/core — the library
 apps/web/             @digraphia/web  — the linking UI
-assets/               logo and mark, light and dark
+assets/               banner, logo and mark
 NOTES.md              design rationale, research, cross-script survey
 HANDOFF.md            project background and decision log
 ```
