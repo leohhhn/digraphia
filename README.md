@@ -100,19 +100,73 @@ the accompanying proposal suggests; see [NOTES.md §6](./NOTES.md).
 
 ---
 
-## Install
+## Try it
 
-Not published to npm yet. Clone and use the workspace:
+Everything here runs against a **live verified pair on Sepolia** —
+`ђорђе.eth` ↔ `djordje.eth`, mutually asserted and resolving to one address.
 
 ```bash
 git clone <this-repo> && cd hackathon-ethbg26
 pnpm install
+pnpm --filter @digraphia/web dev      # http://localhost:5173
 ```
 
-Then depend on it as `"@digraphia/core": "workspace:*"`. Peer requirements are
-`viem` and `@adraffy/ens-normalize`.
+Open the page and enter **`ђорђе.eth`** — copy-paste it, you almost certainly
+don't have a Cyrillic keyboard. It walks the whole protocol:
 
-## Usage
+1. **Finds the twin.** Cyrillic in, so exactly one reading. It also flags that
+   the *true* Latin spelling `đorđe` is not a legal ENS label, which is why the
+   ASCII fallback `djordje` is what you are left with.
+2. **Verifies live.** The six checks, each with its evidence, read through the
+   Universal Resolver — no indexer.
+3. **Writes the assertion.** One `setText` per direction, from an injected
+   wallet. Write only one and the page says so: a one-sided assertion proves
+   nothing.
+
+Now try **`djordje.eth`** instead. Going the other way is ambiguous, so you get
+four Cyrillic readings and the page refuses to pick one for you — only the
+on-chain assertion settles it. That is the entire argument, in one input box.
+
+The pair is re-read every 12s, so a record written from anywhere shows up
+without a reload. Polling stops once the link verifies.
+
+No wallet? Everything except step 3 works read-only.
+
+### From the terminal
+
+```bash
+pnpm --filter @digraphia/core test        # 37 tests
+node packages/digraphia/test/live.mjs     # verifies ђорђе.eth ↔ djordje.eth
+```
+
+`live.mjs` takes `<chain> [nameA] [nameB]`, so the same verifier runs anywhere:
+
+```bash
+node packages/digraphia/test/live.mjs mainnet никола.eth nikola.eth
+```
+
+That one fails, correctly — and it is the problem itself, in one command. Both
+spellings of the name are registered on mainnet today, to **two different
+people**:
+
+```
+FAIL  record-a-to-b  никола.eth has no rs.dvopis.alt record.
+FAIL  record-b-to-a  nikola.eth has no rs.dvopis.alt record — the counter-assertion is missing.
+FAIL  addr-match     Addresses differ: 0x7f432f72…0B70FBA vs 0x6Db2485A…2d4D4dD7.
+
+linked: false
+```
+
+Neither can prove any relationship to the other, and no client can safely show
+them as one identity. That is what the convention exists to fix.
+
+---
+
+## Using the library
+
+Not published to npm yet. Depend on the workspace package as
+`"@digraphia/core": "workspace:*"`; peer requirements are `viem` and
+`@adraffy/ens-normalize`.
 
 ### Verify a link
 
@@ -242,33 +296,6 @@ Pass `{ key }` to `verifyLink()` to verify against a different key — useful if
 the global `alt-script` is ever standardised.
 
 ---
-
-## Try it
-
-A verified pair is live on Sepolia:
-
-```bash
-pnpm --filter @digraphia/core test        # 37 tests
-node packages/digraphia/test/live.mjs     # verifies ђорђе.eth ↔ djordje.eth
-```
-
-`live.mjs` takes `<chain> [nameA] [nameB]`, so the same verifier runs anywhere:
-
-```bash
-node packages/digraphia/test/live.mjs mainnet никола.eth nikola.eth
-```
-
-### The linking UI
-
-```bash
-pnpm --filter @digraphia/web dev          # http://localhost:5173
-```
-
-A single page that walks the whole protocol: enter a name you hold, pick the
-correct twin from the enumerated readings, see the six checks verified live, and
-write both assertions from an injected wallet. With exactly one direction
-written it states plainly that a one-sided assertion proves nothing. The pair is
-re-read every 12s, so a record written elsewhere appears without a reload.
 
 ## Repository
 
