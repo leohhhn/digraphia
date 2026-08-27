@@ -14,7 +14,6 @@ import {
   type CounterpartPlan,
   type Candidate,
   type VerifyResult,
-  type NameFacts,
 } from '@digraphia/core';
 
 /* ------------------------------------------------------------------ chains */
@@ -64,6 +63,8 @@ interface State {
   txError: string | null;
   lastChecked: Date | null;
   polling: boolean;
+  /** Set for one render when the view should jump to the tool. */
+  scrollToTool: boolean;
 }
 
 const state: State = {
@@ -80,6 +81,7 @@ const state: State = {
   txError: null,
   lastChecked: null,
   polling: false,
+  scrollToTool: false,
 };
 
 /* ------------------------------------------------------------------- chain */
@@ -221,6 +223,7 @@ async function analyze() {
   }
 
   state.busy = 'Reading the chain…';
+  state.scrollToTool = true;
   render();
 
   const client = publicClient();
@@ -301,7 +304,7 @@ async function assert(on: string, to: string) {
   const eth = (window as any).ethereum;
   if (!eth || !state.account) return connect();
 
-  state.busy = `Writing ${LINK_KEY} on ${on}…`;
+  state.busy = `Writing the link record on ${on}…`;
   state.txNote = state.txError = null;
   render();
 
@@ -344,6 +347,13 @@ async function assert(on: string, to: string) {
 
 const esc = (s: unknown) =>
   String(s).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
+/**
+ * The library names the concrete record key in its evidence strings, which is
+ * right for a developer reading a terminal. On the page it is noise - the
+ * reader cares that a link record exists, not what it is called.
+ */
+const humanise = (s: string) => s.split(LINK_KEY).join('link record');
 const short = (a?: string | null) => (a ? `${a.slice(0, 6)}…${a.slice(-4)}` : '—');
 
 function candidateRow(c: Candidate, plan: CounterpartPlan): string {
@@ -373,7 +383,7 @@ function candidateRow(c: Candidate, plan: CounterpartPlan): string {
     <div>
       <div class="name">${esc(c.name)}</div>
       <div class="meta">${esc(c.script ?? '')} · addr ${esc(short(p?.addr))}${
-        p?.linkRecord ? ` · ${esc(LINK_KEY)} → ${esc(p.linkRecord)}` : ''
+        p?.linkRecord ? ` · links to ${esc(p.linkRecord)}` : ''
       }</div>
     </div>
     <div class="right">${pills}</div>
@@ -443,7 +453,7 @@ function resultPanel(): string {
     return `<div class="check">
       <div class="tag ${cls}">${tag}</div>
       <div class="id">${esc(c.id)}</div>
-      <div>${esc(c.detail)}</div>
+      <div>${esc(humanise(c.detail))}</div>
     </div>`;
   }).join('');
 
@@ -486,8 +496,16 @@ function resultPanel(): string {
         ? `<span class="small dim">signing as ${esc(short(state.account))}</span>`
         : `<button data-connect>Connect wallet</button>`}
     </div>
-    <pre>setText(namehash("${esc(a)}"), "${esc(LINK_KEY)}", "${esc(b)}")
+    <pre>setText(namehash("${esc(a)}"), "${esc(LINK_KEY)}"<span class="fn">*</span>, "${esc(b)}")
 setText(namehash("${esc(b)}"), "${esc(LINK_KEY)}", "${esc(a)}")</pre>
+    <p class="footnote">
+      <span class="fn">*</span> <span class="mono">${esc(LINK_KEY)}</span> is the
+      <b>record key</b> — the label this declaration is filed under on each name, sitting
+      alongside familiar ones like <span class="mono">avatar</span> and
+      <span class="mono">url</span>. ENS keeps plain, unprefixed keys for its own
+      standards, so anything application-specific is namespaced. <i>Dvopis</i> is Serbian
+      for digraphia.
+    </p>
     ${dead.length ? `<div class="callout">
       <b>Not registered on ${esc(chainKey)}: ${esc(dead.join(', '))}.</b><br />
       A text record is stored on a name's resolver, and an unregistered name has none.
@@ -498,69 +516,58 @@ setText(namehash("${esc(b)}"), "${esc(LINK_KEY)}", "${esc(a)}")</pre>
   </div>`;
 }
 
-function introPanel(): string {
-  return `<div class="panel">
-    <h2>What this is</h2>
-    <div class="cards">
-      <div class="card">
-        <h3>The problem</h3>
-        <p>ENS maps <b>one name to one address</b>. It has no concept of one name
-        relating to another. For a language written in two alphabets, that splits a
-        single person across two unrelated registrations — different profile,
-        different history, no way to say they are the same person.</p>
-      </div>
-      <div class="card">
-        <h3>The convention</h3>
-        <p>The holder of both names has each one <b>declare the other</b>, and points
-        both at the same address. That mutual declaration is the whole protocol —
-        nobody issues it, nobody attests to it, and no registry records it.</p>
-      </div>
-      <div class="card">
-        <h3>How it works</h3>
-        <p>Both declarations live in ordinary ENS records. A client reads them straight
-        from the chain and confirms each name names the other, then that both resolve
-        to one address. <b>Verification is a handful of reads</b> — no trusted party
-        anywhere in the path.</p>
-      </div>
-      <div class="card">
-        <h3>Why it's practical</h3>
-        <p>There is <b>nothing new to deploy</b>. It uses a record type ENS already
-        supports, so it works with today's names, resolvers and tooling — and costs
-        two ordinary writes. Any client can adopt it without permission, and ignoring
-        it breaks nothing.</p>
-      </div>
+function heroPanel(): string {
+  return `<header class="hero">
+    <div class="brand">
+      <span class="tile"><span class="a">&#x434;</span><span class="b">d</span></span>
+      <span class="name"><i>&#x434;</i>igraphia</span>
     </div>
-  </div>`;
+
+    <div class="eyebrow">Cross-script identity for ENS</div>
+    <h1>Two spellings.<br /><span class="muted">One person.</span></h1>
+
+    <p class="lede">
+      Serbian is written in two alphabets at once — and so are Kazakh, Uzbek,
+      Japanese, Chinese and Punjabi. <b>ENS treats each spelling as a different
+      stranger.</b> This makes them one identity, provably.
+    </p>
+
+    <div class="pair">
+      <span class="chip cyr">&#x43D;&#x438;&#x43A;&#x43E;&#x43B;&#x430;.eth</span>
+      <span class="link-glyph">&#8596;</span>
+      <span class="chip">nikola.eth</span>
+    </div>
+    <p class="pair-note">The same name. The same person. Two unrelated ENS identities.</p>
+  </header>`;
 }
 
-/** The actual ENS reads behind the verdict, with this pair's real values. */
-function chainPanel(): string {
-  const r = state.result;
-  if (!r || !state.selected) return '';
-
-  const rows = (f: NameFacts, p: Probe | null) => `
-    <div class="nm">${esc(f.normalized ?? f.input)}</div>
-    <div class="r"><span>namehash(name)</span><span>${esc(f.node ?? '—')}</span></div>
-    <div class="r"><span>resolver</span><span>${esc(p?.resolver ?? '— none set —')}</span></div>
-    <div class="r"><span>text(node, "${esc(LINK_KEY)}")</span><span>${esc(f.linkRecord ?? '— empty —')}</span></div>
-    <div class="r"><span>addr(node)</span><span>${esc(f.address ?? '— unset —')}</span></div>`;
-
-  return `<div class="panel">
-    <h2>Under the hood · what ENS actually stores</h2>
-    <div class="calls">
-      ${rows(r.a, state.sourceProbe)}
-      ${rows(r.b, state.probes.get(state.selected) ?? null)}
+function whyPanel(): string {
+  return `<div class="section-title">Why it matters</div>
+  <div class="cards">
+    <div class="card">
+      <h3>Your identity splits in half</h3>
+      <p>Reputation, history, avatar, profile — all of it attaches to whichever
+      spelling you registered. The other one is a <b>stranger wearing your name</b>,
+      and nothing in ENS can say otherwise.</p>
     </div>
-    <p class="small dim" style="margin:18px 0 0; line-height:1.6">
-      A name is only ever a <span class="mono">namehash</span> to ENS — the string is
-      never stored on chain. Each hash points at a resolver, and the resolver holds the
-      records above. Nothing here is a new contract: the twin lives in an ordinary text
-      record, beside <span class="mono">avatar</span> and <span class="mono">url</span>.<br /><br />
-      Every value is a live <span class="mono">eth_call</span> through the Universal
-      Resolver, never an indexer — indexed data lags, and a squatter can set a record
-      seconds before a check. Records are compared by <span class="mono">namehash</span>
-      rather than by string, so an unnormalised spelling of the same name still matches.
-    </p>
+    <div class="card">
+      <h3>Someone else can hold your name</h3>
+      <p>Not a lookalike — <b>your actual name</b>, in the other alphabet. On mainnet
+      today both spellings of <span class="mono">никола</span> are registered, to two
+      different people. Neither can prove any relationship to the other.</p>
+    </div>
+    <div class="card">
+      <h3>No one can safely link them</h3>
+      <p>A wallet could guess two names are the same person. But guessing wrong shows
+      <b>one person's balance under another person's name</b>. Without proof, the safe
+      choice is to show them as strangers — so everyone does.</p>
+    </div>
+    <div class="card">
+      <h3>The fix needs no permission</h3>
+      <p>The holder of both names declares each one from the other. That mutual
+      declaration is <b>the entire protocol</b> — no issuer, no oracle, nothing new
+      deployed, and clients that ignore it lose nothing.</p>
+    </div>
   </div>`;
 }
 
@@ -575,15 +582,14 @@ function render() {
   const selEnd = activeId ? active!.selectionEnd : null;
 
   app.innerHTML = `
-    <header>
-      <h1><span class="cy">дigraphia</span></h1>
-      <p class="sub">
-        Two spellings, one person. ENS has no way to know that — so assert it, in both
-        directions, and let anyone verify it. No issuer, no oracle, no new contracts.
-      </p>
-    </header>
+    ${heroPanel()}
+    ${whyPanel()}
 
-    ${introPanel()}
+    <div class="section-title" id="tool">See it work</div>
+    <div class="tool-intro">
+      <p>Enter a name you hold. It finds the possible twins, verifies the link live
+      against Ethereum, and writes the declaration.</p>
+    </div>
 
     <div class="panel">
       <h2>Step 1 · a name you hold</h2>
@@ -598,11 +604,9 @@ function render() {
         </select>
         <button id="go">Find twin</button>
       </div>
-      <div class="small dim" style="margin-top:10px">
-        Try <span class="mono">ђорђе.eth</span> (Cyrillic → one reading),
-        <span class="mono">djordje.eth</span> (Latin → four readings), or
-        <span class="mono">konj.eth</span> / <span class="mono">injekcija.eth</span>
-        — same <span class="mono">nj</span>, opposite answers.
+      <div class="small dim" style="margin-top:12px">
+        Try <span class="mono">ђорђе.eth</span>, or <span class="mono">djordje.eth</span>
+        to see why the link cannot simply be calculated.
       </div>
       ${state.planError ? `<div class="err" style="margin-top:12px">${esc(state.planError)}</div>` : ''}
       ${state.busy ? `<div class="spin" style="margin-top:12px">${esc(state.busy)}</div>` : ''}
@@ -610,8 +614,12 @@ function render() {
 
     ${planPanel()}
     ${resultPanel()}
-    ${chainPanel()}
   `;
+
+  if (state.scrollToTool) {
+    state.scrollToTool = false;
+    document.getElementById('tool')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   if (activeId) {
     const el = document.getElementById(activeId) as HTMLInputElement | null;
