@@ -170,12 +170,18 @@ configuration — it picks up the monorepo build:
 
 | Setting | Value |
 |---|---|
+| Root directory | repo root — **not** `apps/web` |
 | Install | `pnpm install --frozen-lockfile` |
 | Build | `pnpm build` |
-| Output | `apps/web/dist` |
+| Output | `dist` |
+
+The app builds to `dist/` at the repo root rather than `apps/web/dist`, because
+Vercel resolves the output directory from the project root and its Vite preset
+looks for `dist` there. Emitting straight to that path means the deploy works
+whether or not `vercel.json` is honoured over the dashboard settings.
 
 The build is fully static, so any static host works — `pnpm build` and serve
-`apps/web/dist`.
+`dist/`.
 
 Two optional environment variables, `VITE_SEPOLIA_RPC` and `VITE_MAINNET_RPC`
 (see `apps/web/.env.example`). They default to public endpoints that need no
