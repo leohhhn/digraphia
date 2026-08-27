@@ -14,6 +14,7 @@ import {
   type CounterpartPlan,
   type Candidate,
   type VerifyResult,
+  type NameFacts,
 } from '@digraphia/core';
 
 /* ------------------------------------------------------------------ chains */
@@ -497,6 +498,72 @@ setText(namehash("${esc(b)}"), "${esc(LINK_KEY)}", "${esc(a)}")</pre>
   </div>`;
 }
 
+function introPanel(): string {
+  return `<div class="panel">
+    <h2>What this is</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>The problem</h3>
+        <p>ENS maps <b>one name to one address</b>. It has no concept of one name
+        relating to another. For a language written in two alphabets, that splits a
+        single person across two unrelated registrations — different profile,
+        different history, no way to say they are the same person.</p>
+      </div>
+      <div class="card">
+        <h3>The convention</h3>
+        <p>The holder of both names has each one <b>declare the other</b>, and points
+        both at the same address. That mutual declaration is the whole protocol —
+        nobody issues it, nobody attests to it, and no registry records it.</p>
+      </div>
+      <div class="card">
+        <h3>How it works</h3>
+        <p>Both declarations live in ordinary ENS records. A client reads them straight
+        from the chain and confirms each name names the other, then that both resolve
+        to one address. <b>Verification is a handful of reads</b> — no trusted party
+        anywhere in the path.</p>
+      </div>
+      <div class="card">
+        <h3>Why it's practical</h3>
+        <p>There is <b>nothing new to deploy</b>. It uses a record type ENS already
+        supports, so it works with today's names, resolvers and tooling — and costs
+        two ordinary writes. Any client can adopt it without permission, and ignoring
+        it breaks nothing.</p>
+      </div>
+    </div>
+  </div>`;
+}
+
+/** The actual ENS reads behind the verdict, with this pair's real values. */
+function chainPanel(): string {
+  const r = state.result;
+  if (!r || !state.selected) return '';
+
+  const rows = (f: NameFacts, p: Probe | null) => `
+    <div class="nm">${esc(f.normalized ?? f.input)}</div>
+    <div class="r"><span>namehash(name)</span><span>${esc(f.node ?? '—')}</span></div>
+    <div class="r"><span>resolver</span><span>${esc(p?.resolver ?? '— none set —')}</span></div>
+    <div class="r"><span>text(node, "${esc(LINK_KEY)}")</span><span>${esc(f.linkRecord ?? '— empty —')}</span></div>
+    <div class="r"><span>addr(node)</span><span>${esc(f.address ?? '— unset —')}</span></div>`;
+
+  return `<div class="panel">
+    <h2>Under the hood · what ENS actually stores</h2>
+    <div class="calls">
+      ${rows(r.a, state.sourceProbe)}
+      ${rows(r.b, state.probes.get(state.selected) ?? null)}
+    </div>
+    <p class="small dim" style="margin:18px 0 0; line-height:1.6">
+      A name is only ever a <span class="mono">namehash</span> to ENS — the string is
+      never stored on chain. Each hash points at a resolver, and the resolver holds the
+      records above. Nothing here is a new contract: the twin lives in an ordinary text
+      record, beside <span class="mono">avatar</span> and <span class="mono">url</span>.<br /><br />
+      Every value is a live <span class="mono">eth_call</span> through the Universal
+      Resolver, never an indexer — indexed data lags, and a squatter can set a record
+      seconds before a check. Records are compared by <span class="mono">namehash</span>
+      rather than by string, so an unnormalised spelling of the same name still matches.
+    </p>
+  </div>`;
+}
+
 function render() {
   const app = document.getElementById('app')!;
 
@@ -515,6 +582,8 @@ function render() {
         directions, and let anyone verify it. No issuer, no oracle, no new contracts.
       </p>
     </header>
+
+    ${introPanel()}
 
     <div class="panel">
       <h2>Step 1 · a name you hold</h2>
@@ -541,6 +610,7 @@ function render() {
 
     ${planPanel()}
     ${resultPanel()}
+    ${chainPanel()}
   `;
 
   if (activeId) {

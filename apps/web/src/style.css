@@ -123,3 +123,19 @@ pre {
 .err { color: var(--bad); font-size: 14px; }
 .spin { color: var(--dim); font-size: 14px; }
 a { color: var(--note); }
+
+/* --- explanatory context ------------------------------------------- */
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.card { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.card h3 { margin: 0 0 6px; font-size: 12px; letter-spacing: .6px; text-transform: uppercase; color: var(--note); font-weight: 650; }
+.card p { margin: 0; font-size: 13.5px; color: var(--dim); line-height: 1.5; }
+.card b { color: var(--fg); font-weight: 600; }
+
+.calls { font-family: var(--mono); font-size: 12.5px; }
+.calls .nm { color: var(--note); font-size: 14px; margin: 18px 0 7px; }
+.calls .nm:first-child { margin-top: 0; }
+.calls .r { display: grid; grid-template-columns: 210px 1fr; gap: 3px 12px; padding: 3px 0; }
+.calls .r > span:first-child { color: var(--dim); }
+.calls .r > span:last-child { word-break: break-all; }
+@media (max-width: 620px) { .calls .r { grid-template-columns: 1fr; } }
