@@ -22,5 +22,5 @@ describe('README examples', () => {
     expect(p.canonicalLatin).toBe('đorđe');
     expect(p.canonicalLatinRegistrable).toBe(false);
   });
-  it('LINK_KEY', () => expect(LINK_KEY).toBe('rs.dvopis.alt'));
+  it('LINK_KEY', () => expect(LINK_KEY).toBe('digraphia.alt-script'));
 });

@@ -499,12 +499,16 @@ function resultPanel(): string {
     <pre>setText(namehash("${esc(a)}"), "${esc(LINK_KEY)}"<span class="fn">*</span>, "${esc(b)}")
 setText(namehash("${esc(b)}"), "${esc(LINK_KEY)}", "${esc(a)}")</pre>
     <p class="footnote">
-      <span class="fn">*</span> <span class="mono">${esc(LINK_KEY)}</span> is the
-      <b>record key</b> — the label this declaration is filed under on each name, sitting
-      alongside familiar ones like <span class="mono">avatar</span> and
-      <span class="mono">url</span>. ENS keeps plain, unprefixed keys for its own
-      standards, so anything application-specific is namespaced. <i>Dvopis</i> is Serbian
-      for digraphia.
+      <span class="fn">*</span> Every ENS name can carry <b>text records</b> — labelled
+      notes stored on the name itself. <span class="mono">avatar</span> holds a picture,
+      <span class="mono">url</span> a website, <span class="mono">com.twitter</span> a
+      handle. <span class="mono">${esc(LINK_KEY)}</span> is simply the label this
+      declaration is filed under, so any client knows where to look for it.
+      <br /><br />
+      ENS keeps plain, unprefixed labels for its own standards, so anything an application
+      defines is namespaced — which is why it isn't just
+      <span class="mono">alt-script</span> yet. That is the global key the accompanying
+      proposal asks for.
     </p>
     ${dead.length ? `<div class="callout">
       <b>Not registered on ${esc(chainKey)}: ${esc(dead.join(', '))}.</b><br />

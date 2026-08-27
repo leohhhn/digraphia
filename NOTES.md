@@ -229,8 +229,8 @@ Three constraints ruled out the obvious designs:
 Each name stores a text record naming its twin. Two writes, perfectly symmetric:
 
 ```solidity
-setText(namehash("никола.eth"), "rs.dvopis.alt", "nikola.eth")
-setText(namehash("nikola.eth"), "rs.dvopis.alt", "никола.eth")
+setText(namehash("никола.eth"), "digraphia.alt-script", "nikola.eth")
+setText(namehash("nikola.eth"), "digraphia.alt-script", "никола.eth")
 ```
 
 Both names must additionally resolve to the **same address** via `addr()`.
@@ -238,7 +238,10 @@ Both names must additionally resolve to the **same address** via `addr()`.
 **Why the key is namespaced.** [ENSIP-5](https://docs.ens.domains/ensip/5/)
 reserves bare lowercase keys (`avatar`, `url`, `email`) for spec-defined globals
 and requires application-specific keys to use reverse-dot namespacing with at
-least one dot. `rs.dvopis.alt` complies (`dvopis` = Serbian for *digraphia*).
+least one dot. `digraphia.alt-script` complies, and is deliberately
+language-neutral — an earlier draft used a Serbian namespace, which stopped
+making sense the moment the same mechanism was used for a Japanese or Kazakh
+pair.
 The unprefixed global `alt-script` is what the accompanying ENSIP *proposes* —
 shipping namespaced until a spec exists is correct behaviour, not a workaround.
 
@@ -289,7 +292,7 @@ flowchart TB
     V -->|"live eth_call<br/>never an indexer"| UR
     UR --> REG
     UR --> RES
-    RES -.->|"rs.dvopis.alt → twin<br/>addr() → address"| V
+    RES -.->|"digraphia.alt-script → twin<br/>addr() → address"| V
     UI ==>|"setText × 2<br/>the only writes"| RES
 ```
 
@@ -318,7 +321,7 @@ flowchart TB
     C1["<b>1 · normalize</b>&nbsp;&nbsp;<i>required</i><br/>ENSIP-15 accepts both labels"]
     C2["<b>2 · distinct</b>&nbsp;&nbsp;<i>required</i><br/>namehash(a) ≠ namehash(b)"]
     C3["<b>3 · scripts-differ</b>&nbsp;&nbsp;<i>advisory</i><br/>reported, never gates — Han/Han is a valid pair"]
-    C4["<b>4 · record a→b</b>&nbsp;&nbsp;<i>required</i><br/>namehash(text(a,'rs.dvopis.alt')) == node(b)"]
+    C4["<b>4 · record a→b</b>&nbsp;&nbsp;<i>required</i><br/>namehash(text(a,'digraphia.alt-script')) == node(b)"]
     C5["<b>5 · record b→a</b>&nbsp;&nbsp;<i>required</i><br/>the counter-assertion — a squatter cannot forge it"]
     C6["<b>6 · addr-match</b>&nbsp;&nbsp;<i>required</i><br/>addr(a) == addr(b) ≠ 0"]
 
@@ -403,7 +406,7 @@ hackathon-ethbg26/
 | Export | Purpose |
 |---|---|
 | `verifyLink(client, a, b, opts?)` | The six-check verification of §3.5. Returns `{ linked, checks[], a, b }`. |
-| `LINK_KEY` | `rs.dvopis.alt` — the ENSIP-5-compliant text record key. |
+| `LINK_KEY` | `digraphia.alt-script` — the ENSIP-5-compliant text record key. |
 | `Check` | `{ id, ok, severity: 'required' \| 'advisory', detail }`. `linked` is true iff every **required** check passes. |
 | `NameFacts` | Per-name evidence: normalized form, node, script group, raw record, address. |
 
@@ -464,7 +467,7 @@ through the Universal Resolver — no indexer, no cached data:
 ```
 chain    : Sepolia (11155111)
 resolver : 0xeeeeeeee14d718c2b47d9923deab1335e144eeee
-LINK_KEY : rs.dvopis.alt
+LINK_KEY : digraphia.alt-script
 
 PASS  normalize        Both normalize under ENSIP-15: ђорђе.eth / djordje.eth
 PASS  distinct         Distinct namehashes.
@@ -515,7 +518,7 @@ pnpm verify mainnet никола.eth nikola.eth
 
 ## 6. Proposed ENSIP — `alt-script`
 
-The library ships under `rs.dvopis.alt` per ENSIP-5. The accompanying draft
+The library ships under `digraphia.alt-script` per ENSIP-5. The accompanying draft
 proposes a **global** key:
 
 > **`alt-script`** — a name asserting that another ENS name is the same identity

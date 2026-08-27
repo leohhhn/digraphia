@@ -6,14 +6,19 @@ import type { Address, PublicClient } from 'viem';
  * Text record key holding the cross-script twin.
  *
  * ENSIP-5 reserves bare lowercase keys (`avatar`, `url`, ...) for
- * spec-defined globals and requires application keys to be reverse-dot
- * namespaced with at least one dot. `dvopis` is Serbian for digraphia.
+ * spec-defined globals and requires application keys to be namespaced with
+ * at least one dot.
+ *
+ * The namespace is deliberately language-neutral. An earlier version used a
+ * Serbian one, which was incoherent the moment someone linked a Japanese or
+ * Kazakh pair - the mechanism is identical for every script, and the key
+ * should not claim otherwise.
  *
  * The unprefixed global `alt-script` is what the accompanying ENSIP draft
  * proposes; shipping under a namespaced key until a spec exists is the
  * correct behaviour, not a workaround.
  */
-export const LINK_KEY = 'rs.dvopis.alt';
+export const LINK_KEY = 'digraphia.alt-script';
 
 export type CheckId =
   | 'normalize'

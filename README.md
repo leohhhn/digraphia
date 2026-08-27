@@ -79,8 +79,8 @@ rather than guessing one.
 Each name stores a text record naming its twin. Two writes, perfectly symmetric:
 
 ```solidity
-setText(namehash("никола.eth"), "rs.dvopis.alt", "nikola.eth")
-setText(namehash("nikola.eth"), "rs.dvopis.alt", "никола.eth")
+setText(namehash("никола.eth"), "digraphia.alt-script", "nikola.eth")
+setText(namehash("nikola.eth"), "digraphia.alt-script", "никола.eth")
 ```
 
 Both names must additionally resolve to the **same nonzero address**.
@@ -96,10 +96,16 @@ back; that requires control of the other name's resolver.
    └────── same addr() ──────┘         ✓ and a single controlling identity
 ```
 
-The key is namespaced per [ENSIP-5](https://docs.ens.domains/ensip/5/), which
-reserves bare lowercase keys for spec-defined globals. `rs.dvopis.alt` complies
-(*dvopis* is Serbian for digraphia). The unprefixed global `alt-script` is what
-the accompanying proposal suggests; see [NOTES.md §6](./NOTES.md).
+A text record is a labelled note stored on a name — the same mechanism behind
+`avatar`, `url` and `com.twitter`. The key is simply the label this declaration
+is filed under, so any client knows where to look.
+
+It is namespaced per [ENSIP-5](https://docs.ens.domains/ensip/5/), which reserves
+unprefixed keys for spec-defined globals. It is also deliberately
+language-neutral: the mechanism is identical for Japanese kanji and kana, or
+Kazakh mid-transition, so the key must not read as though it were about one
+language. The unprefixed global `alt-script` is what the accompanying proposal
+suggests; see [NOTES.md §6](./NOTES.md).
 
 ---
 
@@ -159,8 +165,8 @@ spellings of the name are registered on mainnet today, to **two different
 people**:
 
 ```
-FAIL  record-a-to-b  никола.eth has no rs.dvopis.alt record.
-FAIL  record-b-to-a  nikola.eth has no rs.dvopis.alt record — the counter-assertion is missing.
+FAIL  record-a-to-b  никола.eth has no digraphia.alt-script record.
+FAIL  record-b-to-a  nikola.eth has no digraphia.alt-script record — the counter-assertion is missing.
 FAIL  addr-match     Addresses differ: 0x7f432f72…0B70FBA vs 0x6Db2485A…2d4D4dD7.
 
 linked: false
@@ -327,7 +333,7 @@ Always use the default `'ens-safe'` style when producing a candidate label —
 ### The record key
 
 ```ts
-import { LINK_KEY } from '@digraphia/core';  // 'rs.dvopis.alt'
+import { LINK_KEY } from '@digraphia/core';  // 'digraphia.alt-script'
 
 const twin = await client.getEnsText({ name: 'ђорђе.eth', key: LINK_KEY });
 ```
