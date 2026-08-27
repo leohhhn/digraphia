@@ -1,6 +1,10 @@
-# digraphia
-
-**Cross-script identity linking for ENS.**
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg">
+    <img src="assets/logo-light.svg" width="400"
+         alt="digraphia — cross-script identity linking for ENS">
+  </picture>
+</p>
 
 `никола.eth` and `nikola.eth` are the same person. ENS has no way to know that.
 
@@ -271,6 +275,7 @@ re-read every 12s, so a record written elsewhere appears without a reload.
 ```
 packages/digraphia/   @digraphia/core — the library
 apps/web/             @digraphia/web  — the linking UI
+assets/               logo and mark, light and dark
 NOTES.md              design rationale, research, cross-script survey
 HANDOFF.md            project background and decision log
 ```
