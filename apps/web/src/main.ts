@@ -65,6 +65,8 @@ interface State {
   polling: boolean;
   /** Set for one render when the view should jump to the tool. */
   scrollToTool: boolean;
+  /** Twin typed by hand, for scripts the transliteration cannot handle. */
+  twinInput: string;
 }
 
 const state: State = {
@@ -82,6 +84,7 @@ const state: State = {
   lastChecked: null,
   polling: false,
   scrollToTool: false,
+  twinInput: '',
 };
 
 /* ------------------------------------------------------------------- chain */
@@ -251,6 +254,32 @@ async function analyze() {
   }
   state.busy = null;
   render();
+}
+
+/** Adopt a twin the user named themselves, then verify as normal. */
+async function selectManual() {
+  const raw = state.twinInput.trim().replace(/\.$/, '');
+  if (!raw || !state.plan) return;
+  const qualified = raw.includes('.') ? raw : `${raw}.eth`;
+
+  let normalized: string;
+  try {
+    normalized = planCounterparts(qualified).normalized;
+  } catch (err) {
+    state.planError = err instanceof Error ? err.message : String(err);
+    return render();
+  }
+  if (normalized === state.plan.normalized) {
+    state.planError = 'That is the same name. A name cannot be its own twin.';
+    return render();
+  }
+
+  state.planError = null;
+  state.busy = 'Reading the chain…';
+  render();
+  state.probes.set(normalized, await probe(publicClient(), normalized));
+  state.busy = null;
+  await select(normalized);
 }
 
 async function select(name: string) {
@@ -430,16 +459,45 @@ function planPanel(): string {
     </div>`;
   }
 
-  return `<div class="panel">
-    <h2>Step 2 · possible twins of ${esc(plan.normalized)}</h2>
-    <dl class="kv">
+  const facts = `<dl class="kv">
       <dt>normalized</dt><dd>${esc(plan.normalized)}</dd>
       <dt>script group</dt><dd>${esc(plan.script)}</dd>
       <dt>namehash</dt><dd>${esc(plan.node)}</dd>
       <dt>addr()</dt><dd>${esc(state.sourceProbe?.addr ?? '— not set —')}</dd>
-    </dl>
+    </dl>`;
+
+  const manual = `<div class="row" style="margin-top:14px">
+      <div class="grow">
+        <input type="text" id="twin" placeholder="the other spelling, e.g. 本気.eth"
+               value="${esc(state.twinInput)}" autocomplete="off" spellcheck="false" />
+      </div>
+      <button id="twin-go">Verify pair</button>
+    </div>`;
+
+  // Outside Serbian the transliteration is an identity function, which would
+  // hand back the input as its own twin. Ask instead of inventing one.
+  if (!plan.transliterable) {
+    return `<div class="panel">
+      <h2>Step 2 · name the other spelling</h2>
+      ${facts}
+      <div class="callout info">
+        <b>${esc(plan.normalized)} is ${esc(plan.script)}, and the built-in transliteration
+        only knows Serbian Cyrillic and Latin.</b><br />
+        That is a limit of the convenience, not of the protocol — a declared pair verifies
+        exactly the same whatever the scripts. Type the other spelling and it works from
+        here: 台灣 / 台湾, まじ / 本気, қазақстан / qazaqstan.
+      </div>
+      ${manual}
+    </div>`;
+  }
+
+  return `<div class="panel">
+    <h2>Step 2 · possible twins of ${esc(plan.normalized)}</h2>
+    ${facts}
     ${head}
     ${plan.candidates.map((c) => candidateRow(c, plan)).join('')}
+    <p class="small dim" style="margin:16px 0 0">Not the right spelling? Name it yourself.</p>
+    ${manual}
   </div>`;
 }
 
@@ -643,6 +701,13 @@ function render() {
     chainKey = (e.target as HTMLSelectElement).value as ChainKey;
     if (state.plan) analyze();
   });
+
+  const twin = document.getElementById('twin') as HTMLInputElement | null;
+  if (twin) {
+    twin.addEventListener('input', () => { state.twinInput = twin.value; });
+    twin.addEventListener('keydown', (e) => { if (e.key === 'Enter') selectManual(); });
+    document.getElementById('twin-go')?.addEventListener('click', selectManual);
+  }
 
   app.querySelectorAll<HTMLElement>('.cand[data-name]').forEach((el) =>
     el.addEventListener('click', () => select(el.dataset.name!)));

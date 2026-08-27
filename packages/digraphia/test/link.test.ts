@@ -56,3 +56,21 @@ describe('planCounterparts', () => {
     expect(() => planCounterparts('đorđe.eth')).toThrow(/disallowed/i);
   });
 });
+
+describe('planCounterparts · scripts the transliteration does not know', () => {
+  it('reports Japanese as not transliterable rather than echoing the input', () => {
+    const p = planCounterparts('まじ.eth');
+    expect(p.transliterable).toBe(false);
+  });
+
+  it('reports Han as not transliterable', () => {
+    expect(planCounterparts('台灣.eth').transliterable).toBe(false);
+    expect(planCounterparts('서울.eth').transliterable).toBe(false);
+  });
+
+  it('still reports Serbian pairs as transliterable', () => {
+    expect(planCounterparts('ђорђе.eth').transliterable).toBe(true);
+    expect(planCounterparts('djordje.eth').transliterable).toBe(true);
+    expect(planCounterparts('никола.eth').transliterable).toBe(true);
+  });
+});

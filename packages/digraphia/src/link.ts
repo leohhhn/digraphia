@@ -45,6 +45,19 @@ export interface CounterpartPlan {
    * deterministic; Latin->Cyrillic usually is not.
    */
   deterministic: boolean;
+  /**
+   * Whether the built-in transliteration can propose a twin at all.
+   *
+   * It knows Serbian Cyrillic <-> Latin and nothing else. Japanese kana,
+   * Han, Hangul and every other writing system pass through the mapping
+   * untouched, which would hand back the input as its own twin - so those
+   * are reported as not transliterable and the twin must be named by the
+   * holder instead.
+   *
+   * This is a limit of the CONVENIENCE, not of the protocol: a mutually
+   * asserted pair verifies identically whatever the scripts.
+   */
+  transliterable: boolean;
   candidates: Candidate[];
   /**
    * For Cyrillic input: the TRUE Serbian Latin spelling, which may be
@@ -94,6 +107,10 @@ export function planCounterparts(input: string): CounterpartPlan {
 
   const base = { input, normalized, label, suffix, script, node };
 
+  // The transliteration tables are Serbian. Outside these groups they are
+  // identity functions, and an identity function is not a twin.
+  const serbianScript = script === 'Cyrillic' || script === 'ASCII' || script === 'Latin';
+
   if (script === 'Cyrillic') {
     // Deterministic direction. One reading, but the honest orthography may
     // not be registrable - surface that rather than hiding the substitution.
@@ -104,6 +121,7 @@ export function planCounterparts(input: string): CounterpartPlan {
       ...base,
       direction: 'cyrillic-to-latin',
       deterministic: true,
+      transliterable: serbianScript && ensSafe !== label,
       candidates: [describe(ensSafe, suffix)],
       canonicalLatin: canonical,
       canonicalLatinRegistrable: canonicalProbe.registrable,
@@ -113,10 +131,12 @@ export function planCounterparts(input: string): CounterpartPlan {
 
   // Latin/ASCII input: every reading, no ranking with authority.
   const readings = latinToCyrillicCandidates(label);
+  const changed = readings.some((r) => r !== label);
   return {
     ...base,
     direction: 'latin-to-cyrillic',
     deterministic: !isAmbiguousLatin(label),
+    transliterable: serbianScript && changed,
     candidates: readings.map((r) => describe(r, suffix)),
   };
 }
