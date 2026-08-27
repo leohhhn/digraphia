@@ -174,10 +174,16 @@ populations on earth. It is now **advisory**: reported to the user, never
 enforced. The real security property is *distinct nodes plus mutual assertion*;
 the script difference is descriptive colour.
 
-### 2.4 A second finding: some scripts are second-class in ENS
+### 2.4 A narrower finding: four characters that living orthographies require
 
-ENSIP-15 disallows characters that are **mandatory letters** in living
-orthographies. The name is simply unregisterable:
+To be clear about scope, because this is easy to overstate: **non-Latin names
+register fine.** `ђорђе.eth` and `никола.eth` are valid ENS labels today, and so
+are most Serbian Latin diacritics — `žarko`, `šarić`, `ćira`, `čavka` and `džep`
+all normalize without complaint. Registerability is not the problem this project
+solves; §1.1 is.
+
+But ENSIP-15 does disallow a handful of characters that are **mandatory letters**
+in living orthographies, and those names are simply unregisterable:
 
 | Character | Codepoint | Required by | Consequence |
 |---|---|---|---|
@@ -186,9 +192,9 @@ orthographies. The name is simply unregisterable:
 | `ʻ` | U+02BB | **Official Uzbek Latin** (`oʻ`, `gʻ`) | `oʻzbekiston.eth` **impossible** |
 | `ǆ` | U+01C6 | precomposed Serbian digraph | must decompose to `dž` |
 
-This produces a genuine asymmetry: **for some names, only the Cyrillic spelling
-can exist in ENS at all.** Uzbekistan's official Latin orthography cannot be
-written as an ENS label.
+Four characters is a small surface, but the consequence is sharp: **for these
+names, only the Cyrillic spelling can exist in ENS at all.** Uzbekistan's
+official Latin orthography cannot be written as an ENS label.
 
 The workaround is the conventional ASCII fallback (`đ`→`dj`, `ǆ`→`dž`), which
 this library emits automatically via `cyrillicToLatin(name, 'ens-safe')`. But
@@ -255,10 +261,11 @@ entirely from who is able to write which resolver record.
 
 ```mermaid
 flowchart TB
-    UI["&lt;LinkedIdentity /&gt;<br/>renders the verified pair as ONE identity"]
+    UI["<b>apps/web</b><br/>enumerate twins · verify · assert both directions"]
 
     subgraph client["CLIENT · @digraphia/core"]
         V["<b>verify.ts</b><br/>verifyLink()"]
+        L["<b>link.ts</b><br/>planCounterparts()"]
         T["<b>translit.ts</b><br/>Cyrillic→Latin: total<br/>Latin→Cyrillic: candidate set"]
         N["<b>@adraffy/ens-normalize</b><br/>ENSIP-15 normalize + script group"]
     end
@@ -270,13 +277,29 @@ flowchart TB
     end
 
     UI --> V
+    UI --> L
+    L --> T
     V --> T
     V --> N
     V -->|"live eth_call<br/>never an indexer"| UR
     UR --> REG
     UR --> RES
     RES -.->|"rs.dvopis.alt → twin<br/>addr() → address"| V
+    UI ==>|"setText × 2<br/>the only writes"| RES
 ```
+
+The diagram shows mainnet, where each name's resolver is recorded in the
+Registry. **Sepolia's deployment differs**, and the demo runs there: the `eth`
+node itself carries a resolver, so ENSIP-10 wildcard resolution walks up to it
+and dispatches to a shared resolver rather than a per-name entry in the Registry.
+
+This matters to anyone reading the code, and it is the reason `verifyLink()`
+resolves through the **Universal Resolver** rather than reading the Registry
+directly — the UR performs the wildcard walk, so the same verifier works
+unchanged on both topologies. One practical consequence, learned the hard way:
+on Sepolia `getEnsResolver()` returns the **zero address** for an unregistered
+name rather than throwing, so resolver-presence is a poor liveness signal there.
+`addr()` is the reliable one.
 
 ### 3.5 The verification algorithm
 
@@ -330,16 +353,25 @@ hackathon-ethbg26/
 ├── HANDOFF.md                     project background, research log, decisions
 ├── ens-field-manual.html          standalone ENS architecture reference
 │
-└── packages/
-    └── digraphia/                 @digraphia/core — the library
-        ├── src/
-        │   ├── index.ts           public exports
-        │   ├── translit.ts        Serbian transliteration, ENS-constrained
-        │   └── verify.ts          verifyLink() + LINK_KEY
-        └── test/
-            ├── translit.test.ts   13 tests
-            ├── verify.test.ts     13 tests
-            └── live.mjs           smoke test against real mainnet
+├── packages/
+│   └── digraphia/                 @digraphia/core — the library
+│       ├── src/
+│       │   ├── index.ts           public exports
+│       │   ├── translit.ts        Serbian transliteration, ENS-constrained
+│       │   ├── link.ts            planCounterparts() — enumerate possible twins
+│       │   └── verify.ts          verifyLink() + LINK_KEY
+│       └── test/
+│           ├── translit.test.ts   13 tests
+│           ├── link.test.ts        7 tests
+│           ├── verify.test.ts     13 tests
+│           └── live.mjs           live run against Sepolia or mainnet
+│
+└── apps/
+    └── web/                       @digraphia/web — the linking UI
+        ├── index.html
+        └── src/
+            ├── main.ts            enumerate → verify → write both assertions
+            └── style.css
 ```
 
 ### `src/translit.ts`
@@ -351,6 +383,14 @@ hackathon-ethbg26/
 | `isAmbiguousLatin(s)` | Whether more than one reading exists — drives the "this cannot be derived" explanation in the UI. |
 | `ENS_DISALLOWED_LATIN` | The `đ`→`dj`, `ǆ`→`dž` substitution table from §2.4. |
 
+### `src/link.ts`
+
+| Export | Purpose |
+|---|---|
+| `planCounterparts(name)` | Given one spelling, enumerate the possible twins. Reports the direction, whether it is deterministic, and for each candidate whether ENSIP-15 will even accept it. Deliberately does not rank or choose. |
+| `CounterpartPlan` | Includes `canonicalLatin` — the *true* orthography — and `canonicalLatinRegistrable`, so a UI can say "the correct spelling of your name is not a legal ENS label" rather than silently substituting the fallback. |
+| `Candidate` | `{ name, label, registrable, error?, node?, script? }` — an unregistrable reading is returned *with its rejection reason*, not filtered out. |
+
 ### `src/verify.ts`
 
 | Export | Purpose |
@@ -360,9 +400,28 @@ hackathon-ethbg26/
 | `Check` | `{ id, ok, severity: 'required' \| 'advisory', detail }`. `linked` is true iff every **required** check passes. |
 | `NameFacts` | Per-name evidence: normalized form, node, script group, raw record, address. |
 
+### The linking UI
+
+`apps/web` is a single page that walks the whole protocol:
+
+1. **Enter a name you hold.** A bare label is qualified to `.eth`.
+2. **It enumerates the twins.** One reading for Cyrillic input; every reading for
+   Latin input, each annotated with live chain state — does it resolve, is
+   `addr()` the same, does it already carry a link record. When the true Latin
+   spelling is unregistrable (§2.4) it says so explicitly.
+3. **It verifies.** The six checks of §3.5, each rendered with its evidence
+   string. Advisory checks are shown as `note`, never as failure.
+4. **It writes both assertions** — one `setText` per direction, via an injected
+   wallet, re-verifying after each. With exactly one direction written, the page
+   states plainly that a one-sided assertion proves nothing.
+
+Once a pair is on screen it is re-read every 12s, so a record written elsewhere —
+or by the other half of the pair, often a different wallet — appears without a
+reload. Polling stops as soon as the link verifies.
+
 ### Test coverage
 
-26 tests, all passing. The security-relevant ones:
+33 tests, all passing. The security-relevant ones:
 
 - a squatter pointing at a name that does not point back is **rejected**
 - a mutually-asserting pair with **different** `addr()` is rejected
@@ -371,6 +430,14 @@ hackathon-ethbg26/
 - a name cannot link to itself
 - Chinese `台灣`/`台湾` and Japanese kana pairs **link successfully** despite sharing a script group
 - a same-group pair still fails if the counter-assertion is missing
+
+And on the enumeration side:
+
+- `ђорђе` reports its true Latin spelling `đorđe` as **unregistrable**, with
+  ENSIP-15's own rejection message
+- `konj` and `injekcija` both return multiple readings — same `nj`, opposite
+  correct answers, neither narrowable without morphology
+- only the leading label is transliterated; `никола.leonh.eth` keeps its suffix
 
 ```bash
 pnpm install
@@ -381,26 +448,58 @@ pnpm --filter @digraphia/core test
 
 ## 5. Status
 
-**Verified against mainnet.** Live run through a real Universal Resolver
-`eth_call`, before the demo records were written:
+**Live on Sepolia, all six checks green.** Every read below is an `eth_call`
+through the Universal Resolver — no indexer, no cached data:
 
 ```
-PASS  normalize        Both normalize under ENSIP-15: никола.leonh.eth / nikola.leonh.eth
+chain    : Sepolia (11155111)
+resolver : 0xeeeeeeee14d718c2b47d9923deab1335e144eeee
+LINK_KEY : rs.dvopis.alt
+
+PASS  normalize        Both normalize under ENSIP-15: ђорђе.eth / djordje.eth
 PASS  distinct         Distinct namehashes.
 PASS  scripts-differ   Different ENSIP-15 script groups: Cyrillic vs ASCII.
-FAIL  record-a-to-b    никола.leonh.eth has no rs.dvopis.alt record.
-FAIL  record-b-to-a    nikola.leonh.eth has no rs.dvopis.alt record — counter-assertion missing.
-FAIL  addr-match       At least one name has no address set.
+PASS  record-a-to-b    ђорђе.eth → djordje.eth (namehash matches djordje.eth).
+PASS  record-b-to-a    djordje.eth → ђорђе.eth (namehash matches ђорђе.eth).
+PASS  addr-match       Both resolve to 0xb4b3798d0b25B1A0d78627fC2a1d4F381aFacDfe.
+
+linked: true
 ```
 
-The three failures are correct: those records do not exist yet.
+**Why this pair.** `ђорђе` is the sharpest case in the design, because it
+demonstrates both findings at once. Its true Latin spelling `đorđe` **cannot be
+registered** — ENSIP-15 disallows `đ` (§2.4) — which forces the ASCII fallback
+`djordje`. And `djordje` reverses to *four* different Cyrillic readings (§1.4):
+
+```
+ђорђе  →  djordje  →  [ ђорђе, ђордје, дјорђе, дјордје ]
+```
+
+Nothing in the string says which one is the real person. Only the mutual
+on-chain assertion does. That is the entire argument, registered and verifiable.
 
 | | |
 |---|---|
-| ✅ | Core library, 26 tests, live-verified read path |
-| ⬜ | Demo subnames under `leonh.eth` + record writes |
-| ⬜ | `<LinkedIdentity>` UI |
-| ⬜ | ENSIP draft for the global `alt-script` key |
+| ✅ | Core library, 33 tests, live-verified read path |
+| ✅ | Demo pair registered on Sepolia, both assertions written, **`linked: true`** |
+| ✅ | Linking UI — enumerate candidates, verify, write both directions |
+| ⬜ | ENSIP submitted upstream (proposal text drafted in §6) |
+
+### Run it
+
+```bash
+pnpm install
+pnpm --filter @digraphia/core test        # 33 tests
+node packages/digraphia/test/live.mjs     # live Sepolia verification of the pair
+pnpm --filter @digraphia/web dev          # the linking UI on :5173
+```
+
+`live.mjs` takes `<chain> [nameA] [nameB]`, so the same verifier runs against
+mainnet unchanged:
+
+```bash
+node packages/digraphia/test/live.mjs mainnet никола.eth nikola.eth
+```
 
 ---
 
