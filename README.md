@@ -175,12 +175,18 @@ configuration — it picks up the monorepo build:
 | Build | `pnpm build` |
 | Output | `dist` |
 
-The app builds to `dist/` at the repo root rather than `apps/web/dist`, because
-Vercel resolves the output directory from the project root and its Vite preset
-looks for `dist` there. Emitting straight to that path means the deploy works
-whether or not `vercel.json` is honoured over the dashboard settings.
+`pnpm build` publishes the same output to **both** `apps/web/dist` (Vite's
+natural output) and `dist/` at the repo root. Which one Vercel looks in depends
+on the project's Root Directory setting, so both are written and the deploy
+works either way. Both are gitignored.
 
-The build is fully static, so any static host works — `pnpm build` and serve
+If the deploy still reports `No Output Directory named "dist" found`, the
+dashboard settings are overriding `vercel.json` — set them explicitly under
+Settings → Build & Deployment: Framework Preset `Other`, Build Command
+`pnpm build`, Output Directory `dist`, Install Command
+`pnpm install --frozen-lockfile`.
+
+The build is fully static, so any static host works — `pnpm build`, then serve
 `dist/`.
 
 Two optional environment variables, `VITE_SEPOLIA_RPC` and `VITE_MAINNET_RPC`
