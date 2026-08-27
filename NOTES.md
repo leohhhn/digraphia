@@ -451,7 +451,7 @@ the output it claims, so the docs cannot drift from the implementation.
 
 ```bash
 pnpm install
-pnpm --filter @digraphia/core test
+pnpm test
 ```
 
 ---
@@ -499,16 +499,16 @@ on-chain assertion does. That is the entire argument, registered and verifiable.
 
 ```bash
 pnpm install
-pnpm --filter @digraphia/core test        # 37 tests
-node packages/digraphia/test/live.mjs     # live Sepolia verification of the pair
-pnpm --filter @digraphia/web dev          # the linking UI on :5173
+pnpm dev       # the linking UI on :5173
+pnpm test      # 37 tests
+pnpm verify    # live Sepolia verification of the demo pair
 ```
 
 `live.mjs` takes `<chain> [nameA] [nameB]`, so the same verifier runs against
 mainnet unchanged:
 
 ```bash
-node packages/digraphia/test/live.mjs mainnet никола.eth nikola.eth
+pnpm verify mainnet никола.eth nikola.eth
 ```
 
 ---

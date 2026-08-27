@@ -2,6 +2,17 @@
   "name": "digraphia",
   "private": true,
   "type": "module",
-  "workspaces": ["packages/*", "apps/*"],
+  "scripts": {
+    "dev": "pnpm --filter @digraphia/web dev",
+    "build": "pnpm --filter @digraphia/web build",
+    "preview": "pnpm --filter @digraphia/web preview",
+    "test": "pnpm --filter @digraphia/core test",
+    "typecheck": "pnpm --filter @digraphia/web typecheck",
+    "verify": "node packages/digraphia/test/live.mjs"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "packageManager": "pnpm@10.33.2"
 }

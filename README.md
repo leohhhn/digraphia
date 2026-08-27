@@ -108,8 +108,10 @@ Everything here runs against a **live verified pair on Sepolia** —
 ```bash
 git clone <this-repo> && cd hackathon-ethbg26
 pnpm install
-pnpm --filter @digraphia/web dev      # http://localhost:5173
+pnpm dev
 ```
+
+That's the whole setup — the app is at **http://localhost:5173**.
 
 Open the page and enter **`ђорђе.eth`** — copy-paste it, you almost certainly
 don't have a Cyrillic keyboard. It walks the whole protocol:
@@ -135,14 +137,15 @@ No wallet? Everything except step 3 works read-only.
 ### From the terminal
 
 ```bash
-pnpm --filter @digraphia/core test        # 37 tests
-node packages/digraphia/test/live.mjs     # verifies ђорђе.eth ↔ djordje.eth
+pnpm test      # 37 tests
+pnpm verify    # verifies ђорђе.eth ↔ djordje.eth on Sepolia
 ```
 
-`live.mjs` takes `<chain> [nameA] [nameB]`, so the same verifier runs anywhere:
+`pnpm verify` takes `<chain> [nameA] [nameB]`, so the same verifier runs
+anywhere:
 
 ```bash
-node packages/digraphia/test/live.mjs mainnet никола.eth nikola.eth
+pnpm verify mainnet никола.eth nikola.eth
 ```
 
 That one fails, correctly — and it is the problem itself, in one command. Both
