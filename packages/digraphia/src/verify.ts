@@ -68,14 +68,19 @@ function inspect(input: string): Required<Pick<NameFacts, 'normalized' | 'node' 
 /**
  * Verify that two ENS names are a mutually-asserted cross-script pair.
  *
- * The link holds only if ALL of the following are true:
+ * The link holds only if all of the REQUIRED checks pass:
  *
- *   1. both names normalize under ENSIP-15
- *   2. they are distinct nodes
- *   3. their leading labels belong to different ENSIP-15 script groups
- *   4. A's link record points at B
- *   5. B's link record points at A
- *   6. both resolve to the same nonzero address
+ *   1. both names normalize under ENSIP-15          required
+ *   2. they are distinct nodes                      required
+ *   3. their leading labels are in different
+ *      ENSIP-15 script groups                       ADVISORY - see below
+ *   4. A's link record points at B                  required
+ *   5. B's link record points at A                  required
+ *   6. both resolve to the same nonzero address     required
+ *
+ * Check 3 is reported but never gates the result. ENSIP-15 script groups are
+ * coarser than writing systems, and enforcing it would reject the two largest
+ * script-variant populations on earth (see the comment at step 3).
  *
  * Steps 4 and 5 are compared BY NAMEHASH, never by raw string. A string
  * comparison is defeated by an unnormalized or trailing-dot variant that

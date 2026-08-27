@@ -8,6 +8,25 @@ importers:
 
   .: {}
 
+  apps/web:
+    dependencies:
+      '@adraffy/ens-normalize':
+        specifier: ^1.11.0
+        version: 1.11.1
+      '@digraphia/core':
+        specifier: workspace:*
+        version: link:../../packages/digraphia
+      viem:
+        specifier: ^2.21.0
+        version: 2.55.19(typescript@5.9.3)
+    devDependencies:
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vite:
+        specifier: ^5.4.0
+        version: 5.4.21
+
   packages/digraphia:
     dependencies:
       '@adraffy/ens-normalize':
