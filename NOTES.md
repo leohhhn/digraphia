@@ -13,7 +13,7 @@ holder *assert* the link, bidirectionally, so that any client can verify it
 without trusting an issuer, an oracle, or a registry contract.
 
 Built at ETHBelgrade 2026. Belgrade is the right place for it: Serbian is one of
-the few languages written natively in two alphabets at once.
+the few languages written natively in two alphabets.
 
 ---
 
@@ -40,8 +40,9 @@ splits every user's identity in half.
 ### 1.2 Serbia actually is digraphic
 
 Serbian is written in **both** Cyrillic and Latin, officially and
-simultaneously. Both alphabets are taught in school. Street signs, newspapers,
-government forms and shop fronts mix them freely. A Serb does not "have a
+in parallel. Both alphabets are taught in school, and both appear across street
+signs, newspapers, government forms and shop fronts — but **any one text is
+written in one script or the other**, never mixed. A Serb does not "have a
 Cyrillic name and a Latin name" — they have *one* name that is spelled two ways,
 and which spelling appears is a matter of context, keyboard, or typography.
 
@@ -120,7 +121,7 @@ Twelve languages, both sides valid ENS labels today:
 
 | Language | Cyrillic | Latin | Situation |
 |---|---|---|---|
-| **Serbian** | `никола` `[Cyrillic]` | `nikola` `[ASCII]` | Both official, simultaneous |
+| **Serbian** | `никола` `[Cyrillic]` | `nikola` `[ASCII]` | Both official, used in parallel |
 | **Montenegrin** | `ђевојка` `[Cyrillic]` | `djevojka` `[ASCII]` | Both official |
 | **Macedonian** | `скопје` `[Cyrillic]` | `skopje` `[ASCII]` | Cyrillic official, Latin ubiquitous online |
 | **Bulgarian** | `софия` `[Cyrillic]` | `sofia` `[ASCII]` | Official romanization by law (2009) |
