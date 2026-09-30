@@ -1,7 +1,7 @@
 ---
 description: A text record convention letting the holder of two ENS names assert, bidirectionally, that they are the same identity written in a different script.
 contributors:
-  - [ ] # TODO: ENS name or GitHub handle before submitting
+  - [ @leohhhn ] 
 ensip:
   created: "2026-09-07"
   status: draft
@@ -24,7 +24,7 @@ and comparison.
 
 ## Motivation
 
-ENS resolves one name to one address; nothing in the protocol relates two *different* names to
+ENS resolves one name to one address; nothing in the protocol relates two _different_ names to
 each other. For a monoscriptal language this is invisible. For a digraphic one — a language
 written natively in more than one script, with no single canonical spelling — it splits one
 person's identity into as many unrelated ENS nodes as they have spellings.
@@ -38,7 +38,7 @@ Traditional/Simplified Chinese, Japanese kanji/kana, and Serbian/Croatian/Monten
 diacritics that ENSIP-15 cannot register at all (`đ`, forcing the ASCII fallback `dj`).
 
 This is not the homograph-spoofing problem that ENSIP-15 already solves by rejecting mixed-script
-and whole-script-confusable labels. It is the inverse, and it is *created by* that correct
+and whole-script-confusable labels. It is the inverse, and it is _created by_ that correct
 rejection: a digraphic user is forced into two separate, valid, unmixed labels, and given no way
 to say the two belong together.
 
@@ -105,7 +105,7 @@ reject same-group cross-script pairs that are otherwise entirely valid.
 ### Why bidirectionality is the security property
 
 A one-directional record proves nothing: any name's resolver can point a text record at any other
-name, including one the writer does not control. What a third party cannot do is make the *other*
+name, including one the writer does not control. What a third party cannot do is make the _other_
 name assert the reverse — that requires control of that name's own resolver. Mutual assertion plus
 matching `addr()` is therefore sufficient to establish common control without any issuer, oracle,
 or on-chain registry of links.
@@ -135,7 +135,7 @@ transliteration.** See Motivation — for Serbian specifically, and for essentia
 digraphic language in general, the Latin→other-script direction is not a function (multiple valid
 readings exist and only the speaker's knowledge of morphology picks the right one). Any attempt by
 this ENSIP to standardize a transliteration table would be solving the wrong layer: the record
-does not encode *how* to transliterate, only *that* two specific already-registered names are
+does not encode _how_ to transliterate, only _that_ two specific already-registered names are
 asserted, mutually, to be the same identity.
 
 **Why not an N-way (cluster) record in this version.** Some scripts have three or more coexisting
@@ -204,7 +204,7 @@ Three or more coexisting spellings of one identity (Traditional Han / Simplified
 kanji / hiragana / katakana / rōmaji) don't fit the pairwise `A ⟷ B` model in Specification without
 either (a) every member carrying a JSON array of every other member — O(n) writes and an O(n²)
 mutual-closure check on every read, with no way to detect a member whose array has silently gone
-stale — or (b) a structure purpose-built for group membership. ENSv2's registry tree already *is*
+stale — or (b) a structure purpose-built for group membership. ENSv2's registry tree already _is_
 that structure: every registry is a singleton-ownership token collection (`ERC1155Singleton` —
 exactly one owner per token ID) with membership changes indexable for free via
 `LabelRegistered`/`TransferSingle`/`LabelUnregistered` events, which is a guarantee the text-record
@@ -266,20 +266,20 @@ sequenceDiagram
 ```
 
 Both checks are live at the moment they run — `accept()` never trusts an address `invite()`
-supplied earlier, so a name that changes hands between the two calls is judged by its *current*
+supplied earlier, so a name that changes hands between the two calls is judged by its _current_
 controller, not a stale snapshot (see `ensv2-engineering-options.md` §1's `resource`-not-`tokenId`
 anchoring lesson, applied here to ownership rather than to registry state).
 
 ### A.4 Permissions
 
-| Actor | Action | Gate |
-|---|---|---|
-| Founding member | deploy + auto-join | constructor requires `findOwner(founderName) == msg.sender` |
-| Existing member | `invite(label, candidateName)` | `isMember[msg.sender]` |
-| Any name controller | `accept(label, name)` | invite exists for `label`, not expired, `keccak256(name)` matches, **and** `findOwner(name) == msg.sender` |
-| Member (own token only) | `leave(anyId)` | inherited `ROLE_UNREGISTER`, granted *only* to that member's own token at `accept()` time |
-| `admin` (constructor param) | `setURI(...)` (inherited) | `ROLE_SET_URI` — cosmetic/metadata only, no membership authority |
-| Anyone | `register(...)` (base entrypoint) | always reverts — the only mint path is `invite`+`accept` |
+| Actor                       | Action                            | Gate                                                                                                       |
+| --------------------------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Founding member             | deploy + auto-join                | constructor requires `findOwner(founderName) == msg.sender`                                                |
+| Existing member             | `invite(label, candidateName)`    | `isMember[msg.sender]`                                                                                     |
+| Any name controller         | `accept(label, name)`             | invite exists for `label`, not expired, `keccak256(name)` matches, **and** `findOwner(name) == msg.sender` |
+| Member (own token only)     | `leave(anyId)`                    | inherited `ROLE_UNREGISTER`, granted _only_ to that member's own token at `accept()` time                  |
+| `admin` (constructor param) | `setURI(...)` (inherited)         | `ROLE_SET_URI` — cosmetic/metadata only, no membership authority                                           |
+| Anyone                      | `register(...)` (base entrypoint) | always reverts — the only mint path is `invite`+`accept`                                                   |
 
 ```mermaid
 flowchart LR
