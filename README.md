@@ -26,9 +26,10 @@ ENS resolves **one name → one address**. There is no name ↔ name relation
 anywhere in the protocol.
 
 For a language written in two alphabets, that splits one identity in two.
-Serbian is written in Cyrillic *and* Latin, officially and simultaneously — a
-Serb doesn't have two names, they have one name spelled two ways. But the two
-spellings produce unrelated namehashes:
+Serbian is written in Cyrillic *and* Latin — both official, both everyday, but
+**any one text uses a single script**, never a mix. A Serb doesn't have two
+names; they have one name spelled two ways. The two spellings produce unrelated
+namehashes:
 
 ```
 никола.eth   →  0x5ead07d5c07e46e232c2bcdb51572c3adab96b1b78adc178ea2e72fd10147bff

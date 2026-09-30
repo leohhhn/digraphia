@@ -589,9 +589,10 @@ function heroPanel(): string {
     <h1>Two spellings.<br /><span class="muted">One person.</span></h1>
 
     <p class="lede">
-      Serbian is written in two alphabets at once — and so are Kazakh, Uzbek,
-      Japanese, Chinese and Punjabi. <b>ENS treats each spelling as a different
-      stranger.</b> This makes them one identity, provably.
+      Serbian is written in two alphabets, and so are Kazakh, Uzbek, Japanese,
+      Chinese and Punjabi. Any one text uses a single script — so the same name
+      simply exists twice. <b>ENS treats each spelling as a different stranger.</b>
+      This makes them one identity, provably.
     </p>
 
     <div class="pair">
