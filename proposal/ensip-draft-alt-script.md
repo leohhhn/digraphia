@@ -10,8 +10,6 @@ ensip:
 # ENSIP-draft: Cross-Script Identity Linking (`alt-script`)
 
 > **Status of this file:** working draft, not yet opened as a PR against `ensdomains/ensips`.
-> See [`../HANDOFF.md`](../HANDOFF.md) §5 for what's left before submission. Filed in this repo
-> rather than the ENSIPs repo so it can be iterated on alongside the reference implementation.
 
 ## Abstract
 
