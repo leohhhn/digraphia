@@ -565,8 +565,8 @@ setText(namehash("${esc(b)}"), "${esc(LINK_KEY)}", "${esc(a)}")</pre>
       <br /><br />
       ENS keeps plain, unprefixed labels for its own standards, so anything an application
       defines is namespaced — which is why it isn't just
-      <span class="mono">alt-script</span> yet. That is the global key the accompanying
-      proposal asks for.
+      <span class="mono">alt-script</span> yet. That is the global key we intend to
+      propose.
     </p>
     ${dead.length ? `<div class="callout">
       <b>Not registered on ${esc(chainKey)}: ${esc(dead.join(', '))}.</b><br />
@@ -589,10 +589,12 @@ function heroPanel(): string {
     <h1>Two spellings.<br /><span class="muted">One person.</span></h1>
 
     <p class="lede">
-      Serbian is written in two alphabets, and so are Kazakh, Uzbek, Japanese,
-      Chinese and Punjabi. Any one text uses a single script — so the same name
-      simply exists twice. <b>ENS treats each spelling as a different stranger.</b>
-      This makes them one identity, provably.
+      Serbian is officially written in two alphabets, and any one text uses one or the
+      other — so the same name simply exists twice. Other languages split in their own
+      ways: Kazakh and Uzbek are moving from Cyrillic to Latin, Chinese has Traditional
+      and Simplified forms, Punjabi is written in different scripts in India and Pakistan.
+      <b>ENS treats each spelling as a different stranger.</b>
+      Digraphia makes them one identity, provably.
     </p>
 
     <div class="pair">
