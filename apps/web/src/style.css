@@ -213,3 +213,6 @@ a { color: var(--note); }
 .footnote b { color: var(--fg); font-weight: 600; }
 .footnote .mono { color: var(--note); }
 .fn { color: var(--note); font-weight: 700; }
+
+.netbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 0 0 14px; }
+.netbar label { font-size: 13px; font-weight: 600; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; }

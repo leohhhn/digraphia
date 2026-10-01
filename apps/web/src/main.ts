@@ -33,7 +33,18 @@ const CHAINS = {
 } as const;
 type ChainKey = keyof typeof CHAINS;
 
-let chainKey: ChainKey = 'sepolia';
+const CHAIN_LABELS: Record<ChainKey, string> = {
+  sepolia: 'Sepolia (testnet)',
+  mainnet: 'Ethereum mainnet',
+};
+const CHAIN_HINTS: Record<ChainKey, string> = {
+  sepolia: 'Test network — free to experiment, nothing here costs real money.',
+  mainnet: 'Real names, read live. Writing a record here spends real ETH.',
+};
+
+// ?chain=mainnet lets a link open straight on the right network.
+const fromUrl = new URLSearchParams(location.search).get('chain');
+let chainKey: ChainKey = fromUrl === 'mainnet' ? 'mainnet' : 'sepolia';
 const publicClient = (): PublicClient =>
   createPublicClient({
     chain: CHAINS[chainKey].chain,
@@ -304,6 +315,18 @@ async function runVerify() {
   render();
 }
 
+/** Ask the wallet to move to the chain the page is reading. */
+async function ensureChain(eth: any) {
+  const want = CHAINS[chainKey].chain.id;
+  const current = Number(await eth.request({ method: 'eth_chainId' }));
+  if (current !== want) {
+    await eth.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: '0x' + want.toString(16) }],
+    });
+  }
+}
+
 async function connect() {
   const eth = (window as any).ethereum;
   if (!eth) {
@@ -313,14 +336,7 @@ async function connect() {
   try {
     const accounts: Address[] = await eth.request({ method: 'eth_requestAccounts' });
     state.account = accounts[0] ?? null;
-    const want = CHAINS[chainKey].chain.id;
-    const current = Number(await eth.request({ method: 'eth_chainId' }));
-    if (current !== want) {
-      await eth.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0x' + want.toString(16) }],
-      });
-    }
+    await ensureChain(eth);
     state.txError = null;
   } catch (err: any) {
     state.txError = err?.shortMessage ?? err?.message ?? String(err);
@@ -338,6 +354,7 @@ async function assert(on: string, to: string) {
   render();
 
   try {
+    await ensureChain(eth);
     const client = publicClient();
     const resolver = orNull(await client.getEnsResolver({ name: on }).catch(() => null));
     if (!resolver) {
@@ -656,6 +673,15 @@ function render() {
       against Ethereum, and writes the declaration.</p>
     </div>
 
+    <div class="netbar">
+      <label for="chain">Network</label>
+      <select id="chain">
+        ${(Object.keys(CHAINS) as ChainKey[]).map((k) =>
+          `<option value="${k}" ${k === chainKey ? 'selected' : ''}>${CHAIN_LABELS[k]}</option>`).join('')}
+      </select>
+      <span class="small dim">${esc(CHAIN_HINTS[chainKey])}</span>
+    </div>
+
     <div class="panel">
       <h2>Step 1 · a name you hold</h2>
       <div class="row">
@@ -663,10 +689,6 @@ function render() {
           <input type="text" id="name" placeholder="ђорђе.eth" value="${esc(state.input)}"
                  autocomplete="off" spellcheck="false" />
         </div>
-        <select id="chain">
-          ${Object.keys(CHAINS).map((k) =>
-            `<option value="${k}" ${k === chainKey ? 'selected' : ''}>${k}</option>`).join('')}
-        </select>
         <button id="go">Find twin</button>
       </div>
       <div class="small dim" style="margin-top:12px">
@@ -702,7 +724,12 @@ function render() {
   document.getElementById('go')!.addEventListener('click', analyze);
   document.getElementById('chain')!.addEventListener('change', (e) => {
     chainKey = (e.target as HTMLSelectElement).value as ChainKey;
+    const url = new URL(location.href);
+    url.searchParams.set('chain', chainKey);
+    history.replaceState(null, '', url);
+    state.txNote = state.txError = null;
     if (state.plan) analyze();
+    else render();
   });
 
   const twin = document.getElementById('twin') as HTMLInputElement | null;
